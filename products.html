@@ -1,69 +1,86 @@
-// Cart object to store selected items
-const cart = {};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medivive - Products</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <button onclick="goHome()" class="back-button">← Back to Home</button>
 
-// Function to update quantity of a product
-function updateQuantity(productName, price, action) {
-    const quantityElement = document.getElementById(`quantity-${productName}`);
-    let quantity = parseInt(quantityElement.textContent);
+    <h1>Medivive - Products</h1>
+    <div class="products-container">
 
-    if (action === 'increase') {
-        quantity++;
-    } else if (action === 'decrease' && quantity > 0) {
-        quantity--;
-    }
+        <!-- Product 1 -->
+        <div class="product">
+            <h3>Paracetamol</h3>
+            <p>Price: $5</p>
+            <p>Relieves pain and fever. (20 tablets)</p>
+            <div class="quantity-control">
+                <button class="quantity-btn" onclick="updateQuantity('Paracetamol', 5, 'decrease')">-</button>
+                <span id="quantity-Paracetamol">0</span>
+                <button class="quantity-btn" onclick="updateQuantity('Paracetamol', 5, 'increase')">+</button>
+            </div>
+        </div>
 
-    quantityElement.textContent = quantity;
+        <!-- Product 2 -->
+        <div class="product">
+            <h3>Ibuprofen</h3>
+            <p>Price: $11</p>
+            <p>Reduces inflammation and pain. (30 tablets)</p>
+            <div class="quantity-control">
+                <button class="quantity-btn" onclick="updateQuantity('Ibuprofen', 11, 'decrease')">-</button>
+                <span id="quantity-Ibuprofen">0</span>
+                <button class="quantity-btn" onclick="updateQuantity('Ibuprofen', 11, 'increase')">+</button>
+            </div>
+        </div>
 
-    // Update cart
-    if (quantity > 0) {
-        cart[productName] = { price, quantity };
-    } else {
-        delete cart[productName];
-    }
+        <!-- Product 3 -->
+        <div class="product">
+            <h3>Aspirin</h3>
+            <p>Price: $8</p>
+            <p>Helps prevent heart attacks and reduces pain. (25 tablets)</p>
+            <div class="quantity-control">
+                <button class="quantity-btn" onclick="updateQuantity('Aspirin', 8, 'decrease')">-</button>
+                <span id="quantity-Aspirin">0</span>
+                <button class="quantity-btn" onclick="updateQuantity('Aspirin', 8, 'increase')">+</button>
+            </div>
+        </div>
 
-    updateCart();
-}
+        <!-- Product 4 -->
+        <div class="product">
+            <h3>Amoxicillin</h3>
+            <p>Price: $15</p>
+            <p>Antibiotic for bacterial infections. (10 capsules)</p>
+            <div class="quantity-control">
+                <button class="quantity-btn" onclick="updateQuantity('Amoxicillin', 15, 'decrease')">-</button>
+                <span id="quantity-Amoxicillin">0</span>
+                <button class="quantity-btn" onclick="updateQuantity('Amoxicillin', 15, 'increase')">+</button>
+            </div>
+        </div>
 
-// Function to update the cart display
-function updateCart() {
-    const cartItemsElement = document.getElementById("cart-items");
-    const totalPriceElement = document.getElementById("total-price");
-    cartItemsElement.innerHTML = ""; // Clear existing cart items
-    let total = 0;
+        <!-- Product 5 -->
+        <div class="product">
+            <h3>Cough Syrup</h3>
+            <p>Price: $10</p>
+            <p>Soothes cough and throat irritation. (200ml bottle)</p>
+            <div class="quantity-control">
+                <button class="quantity-btn" onclick="updateQuantity('Cough Syrup', 10, 'decrease')">-</button>
+                <span id="quantity-Cough Syrup">0</span>
+                <button class="quantity-btn" onclick="updateQuantity('Cough Syrup', 10, 'increase')">+</button>
+            </div>
+        </div>
 
-    for (const [productName, item] of Object.entries(cart)) {
-        const li = document.createElement("li");
-        li.textContent = `${productName} - ${item.quantity} x $${item.price} = $${item.quantity * item.price}`;
-        cartItemsElement.appendChild(li);
-        total += item.quantity * item.price;
-    }
+        <!-- Cart Section -->
+        <div class="cart-container">
+            <h2>Your Cart</h2>
+            <ul id="cart-items"></ul>
+            <p id="total-price">Total: $0</p>
+            <button class="cart-button" onclick="checkout()">Checkout</button>
+        </div>
+    </div>
 
-    totalPriceElement.textContent = `Total: $${total}`;
-}
-
-// Function to handle checkout
-function checkout() {
-    if (Object.keys(cart).length === 0) {
-        alert("Your cart is empty. Please add some products.");
-    } else {
-        alert("Thank you for your purchase!");
-        clearCart();
-    }
-}
-
-// Function to clear the cart after checkout
-function clearCart() {
-    for (const product in cart) {
-        const quantityElement = document.getElementById(`quantity-${product}`);
-        if (quantityElement) {
-            quantityElement.textContent = "0";
-        }
-    }
-    Object.keys(cart).forEach((key) => delete cart[key]);
-    updateCart();
-}
-
-// Function to go back to home page
-function goHome() {
-    window.location.href = "index.html"; // Ensure index.html exists in your project
-}
+    <script src="script.js"></script>
+</body>
+</html>
