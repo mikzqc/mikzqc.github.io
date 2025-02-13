@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Medivive - Products</h1>
+    <button onclick="goHome()" class="back-button">← Back to Home</button>
+   <h1>Medivive - Products</h1>
     <div class="products-container">
 
         <!-- Product 1 -->
@@ -136,13 +137,5 @@
                 }
                 Object.keys(cart).forEach(key => delete cart[key]);
                 updateCart();
-                
-<button onclick="goHome()" class="back-button">← Back to Home</button>
-
-<script>
-    function goHome() {
-        window.location.href = "index.html"; // Change to your actual homepage file
-    }
-</script>
 </body>
 </html>
