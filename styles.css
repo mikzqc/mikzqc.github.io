@@ -81,4 +81,30 @@ footer {
     bottom: 0;
     width: 100%;
 }
+body {
+    font-family: 'Poppins', sans-serif;
+}
+a {
+    color: white;
+    background: #007b00;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+a:hover {
+    background: #005a00;
+}
+section {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+}
+.header {
+    background: linear-gradient(90deg, #007b00, #005a00);
+    padding: 40px;
+    text-align: center;
+    color: white;
+}
+
 
