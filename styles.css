@@ -256,6 +256,31 @@ header {
 .back-button:hover {
     background-color: #218838;
 }
+.products-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px; /* Increased spacing */
+    padding: 20px;
+}
+
+.product {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    background-color: #f9f9f9;
+    min-height: 150px; /* Ensures consistent height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.quantity-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
 
 
 
