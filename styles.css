@@ -110,32 +110,32 @@ html, body {
     height: 100%;
     overflow-y: auto;
 }
-/* Reduce overall spacing while keeping it balanced */
+/* Reduce spacing on the body */
 body {
     margin: 0;
     padding: 0;
 }
 
-/* Adjust section spacing */
+/* Reduce padding inside sections */
 section {
-    padding: 15px; /* Was 20px, now slightly tighter */
-    max-width: 800px;
+    padding: 10px !important; /* Force smaller padding */
+    max-width: 900px; /* Keeps content well-sized */
     margin: auto;
 }
 
-/* Reduce header padding slightly */
+/* Reduce header padding */
 .header {
-    padding: 30px; /* Was 40px */
+    padding: 20px !important; /* Previously 40px, now tighter */
 }
 
-/* Improve spacing for paragraphs and lists */
-p, ul {
-    margin-bottom: 10px; /* Less empty space */
+/* Reduce spacing between paragraphs, lists, and headings */
+h1, h2, h3, p, ul, li {
+    margin-bottom: 5px !important; /* Was larger, now much tighter */
 }
 
-/* Reduce footer spacing */
+/* Reduce spacing in the footer */
 .footer {
-    padding: 10px;
+    padding: 5px !important;
 }
 
 
