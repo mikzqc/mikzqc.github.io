@@ -110,5 +110,33 @@ html, body {
     height: 100%;
     overflow-y: auto;
 }
+/* Reduce overall spacing while keeping it balanced */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Adjust section spacing */
+section {
+    padding: 15px; /* Was 20px, now slightly tighter */
+    max-width: 800px;
+    margin: auto;
+}
+
+/* Reduce header padding slightly */
+.header {
+    padding: 30px; /* Was 40px */
+}
+
+/* Improve spacing for paragraphs and lists */
+p, ul {
+    margin-bottom: 10px; /* Less empty space */
+}
+
+/* Reduce footer spacing */
+.footer {
+    padding: 10px;
+}
+
 
 
