@@ -240,6 +240,20 @@ header {
     width: 100%;
     cursor: pointer;
 }
+.back-button {
+    background-color: #28a745; /* Green to match your theme */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.back-button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
 
 
 
