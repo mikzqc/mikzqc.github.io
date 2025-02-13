@@ -241,29 +241,16 @@ header {
     cursor: pointer;
 }
 .back-button {
-    background-color: #28a745; /* Green to match your theme */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 20px;
-}
-
-.back-button:hover {
-    background-color: #218838; /* Darker green on hover */
-}
-
-.back-button {
     background-color: #28a745;
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 15px;
     font-size: 16px;
     border-radius: 5px;
     cursor: pointer;
     margin: 10px;
+    display: inline-block;
+    text-align: center;
 }
 
 .back-button:hover {
