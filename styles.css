@@ -196,3 +196,18 @@ footer {
 .contact-container button:hover {
     background-color: #218838;
 }
+.contact-button {
+    display: inline-block;
+    margin-top: 20px;
+    color: white;
+    background-color: #2E7D32; /* Match theme color */
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    position: relative;
+}
+
+.contact-button:hover {
+    background-color: #1B5E20;
+}
