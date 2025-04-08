@@ -1,5 +1,3 @@
-<html>
-<body>
 // Cart object to store selected items
 const cart = {};
 
@@ -105,6 +103,3 @@ async function sendMessage() {
   input.disabled = false;
   log.scrollTop = log.scrollHeight;
 }
-    </script>
-    </body>
-    </html>
