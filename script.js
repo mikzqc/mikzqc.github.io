@@ -67,3 +67,39 @@ function clearCart() {
 function goHome() {
     window.location.href = "index.html"; // Ensure index.html exists in your project
 }
+function toggleChat() {
+  const box = document.getElementById('chat-box');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const message = input.value.trim();
+  if (!message) return;
+
+  const log = document.getElementById('chat-log');
+  log.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
+
+  input.value = 'Thinking...';
+  input.disabled = true;
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer YOUR_OPENAI_API_KEY" // <- Replace this
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: message }]
+    })
+  });
+
+  const data = await response.json();
+  const reply = data.choices?.[0]?.message?.content || "Oops, I blanked out.";
+  log.innerHTML += `<div><strong>Medivive:</strong> ${reply}</div>`;
+
+  input.value = '';
+  input.disabled = false;
+  log.scrollTop = log.scrollHeight;
+}
