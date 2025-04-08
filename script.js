@@ -1,3 +1,5 @@
+<html>
+<body>
 // Cart object to store selected items
 const cart = {};
 
@@ -71,7 +73,7 @@ function toggleChat() {
   const box = document.getElementById('chat-box');
   box.style.display = box.style.display === 'none' ? 'block' : 'none';
 }
-
+<script>
 async function sendMessage() {
   const input = document.getElementById('user-input');
   const message = input.value.trim();
@@ -103,3 +105,6 @@ async function sendMessage() {
   input.disabled = false;
   log.scrollTop = log.scrollHeight;
 }
+    </script>
+    </body>
+    </html>
