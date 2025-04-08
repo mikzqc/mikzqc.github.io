@@ -211,22 +211,3 @@ footer {
 .contact-button:hover {
     background-color: #1B5E20;
 }
-.chatbot-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #2E7D32;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 15px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 9999;
-    transition: background-color 0.3s ease;
-}
-
-.chatbot-button:hover {
-    background-color: #1b5e20;
-}
