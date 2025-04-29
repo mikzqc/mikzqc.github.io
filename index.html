@@ -3,46 +3,752 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medivive - Home</title>
- <link rel="stylesheet" href="styles.css">
+    <title>Amazin.com: Spend less. Smile more. (Not Really)</title>
+    <style>
+        /* --- CSS STYLES START --- */
+        body {
+            font-family: "Amazon Ember", Arial, sans-serif; /* Using a common Amazon font stack */
+            margin: 0;
+            background-color: #EAEDED; /* Amazon's light grey background */
+            font-size: 14px; /* Common base font size */
+            color: #0F1111; /* Amazon's primary text color */
+        }
+
+        a {
+            text-decoration: none;
+            color: #007185; /* Amazon's standard link color */
+        }
+        a:hover {
+            color: #C7511F; /* Amazon's link hover color */
+            text-decoration: underline;
+        }
+
+        /* --- Header --- */
+        header {
+            background-color: #131921; /* Amazon's dark header */
+            color: white;
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .logo {
+            display: inline-block; /* Allow padding */
+            font-size: 1.8em; /* Adjust as needed */
+            font-weight: bold;
+            color: #FF9900; /* Amazon's orange */
+            text-decoration: none;
+            padding: 5px 10px 5px 0;
+            border: 1px solid transparent; /* For hover effect */
+            margin-right: 10px;
+        }
+        .logo:hover {
+            border: 1px solid white;
+            text-decoration: none;
+        }
+
+        .location {
+            color: #CCC;
+            font-size: 0.8em;
+            padding: 5px;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+        .location strong {
+            color: white;
+            font-size: 0.9em;
+        }
+         .location:hover {
+            border: 1px solid white;
+        }
+
+
+        .search-bar {
+            display: flex;
+            flex-grow: 1; /* Take up available space */
+            margin: 0 15px;
+            min-width: 200px; /* Prevent excessive shrinking */
+        }
+        .search-bar input {
+            padding: 10px;
+            width: 100%; /* Fill the container */
+            border: none;
+            border-radius: 4px 0 0 4px; /* Rounded left corners */
+            font-size: 1em;
+        }
+        .search-bar button {
+            background-color: #febd69; /* Amazon's search button gold */
+            border: none;
+            padding: 0 12px;
+            cursor: pointer;
+            border-radius: 0 4px 4px 0; /* Rounded right corners */
+        }
+        .search-bar button:hover {
+            background-color: #f3a847; /* Darker gold on hover */
+        }
+        .search-icon { /* Style the search icon if using text/emoji */
+             font-size: 1.2em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            margin-left: auto; /* Push to the right */
+        }
+        .header-right a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 10px;
+            font-size: 0.85em;
+            line-height: 1.2;
+            border: 1px solid transparent;
+            display: block; /* Ensure padding works */
+        }
+         .header-right a span { /* "Hello, sign in" */
+            font-size: 0.9em;
+            color: #CCC;
+            display: block;
+         }
+         .header-right a strong { /* "Account & Lists", "Orders" */
+             font-weight: bold;
+             font-size: 0.95em;
+             display: block;
+         }
+         .header-right a:hover {
+            border: 1px solid white;
+            text-decoration: none;
+         }
+         #cart-link {
+            font-size: 1em;
+            font-weight: bold;
+            position: relative; /* For positioning the count */
+         }
+         #cart-link .cart-icon { /* Style the cart icon if using text/emoji */
+            font-size: 1.5em;
+            margin-right: 3px;
+            vertical-align: middle;
+         }
+         #cart-count {
+            color: #FF9900; /* Orange count */
+            font-weight: bold;
+            position: absolute; /* Position relative to cart link */
+            top: 0px;
+            left: 15px; /* Adjust as needed */
+            font-size: 1.1em;
+         }
+
+
+        /* --- Navigation Bar --- */
+        nav {
+            background-color: #232f3e; /* Amazon's secondary dark blue */
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 10px;
+            display: inline-block; /* Allow padding */
+            border: 1px solid transparent;
+            margin-right: 2px;
+        }
+        nav a:hover {
+            border: 1px solid white;
+            text-decoration: none;
+        }
+
+        /* --- Main Product Area --- */
+        .product-page {
+            display: flex;
+            max-width: 1300px; /* Wider container */
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white; /* White background for product area */
+            gap: 30px; /* Space between columns */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        /* --- Product Image Column --- */
+        .product-image {
+            flex: 0 0 400px; /* Fixed width for image area */
+            text-align: center; /* Center image */
+        }
+        .product-image img {
+            max-width: 100%; /* Responsive image */
+            height: auto;
+            display: block;
+            margin: 0 auto; /* Center block image */
+            cursor: zoom-in; /* Mimic Amazon's image hover */
+        }
+        /* Add styles for thumbnails if needed */
+
+        /* --- Product Info Column --- */
+        .product-info {
+            flex: 1 1 400px; /* Flexible width, base 400px */
+            min-width: 300px; /* Prevent excessive shrinking */
+        }
+        .product-info h1 {
+            font-size: 1.6em; /* Larger product title */
+            font-weight: 400; /* Normal weight like Amazon */
+            margin-top: 0;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+        .product-info .brand-link {
+             font-size: 0.9em;
+             margin-bottom: 8px;
+             display: block;
+        }
+        .product-info .rating {
+            color: #ffa41c; /* Amazon's star color */
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        .product-info .rating span { /* For star characters */
+            font-size: 1.2em;
+        }
+         .product-info .rating a {
+            margin-left: 10px;
+            font-size: 0.9em;
+         }
+        .product-info hr {
+            border: none;
+            border-top: 1px solid #DDD;
+            margin: 15px 0;
+        }
+        .product-info .price-section {
+            margin-bottom: 15px;
+        }
+        .product-info .price-label {
+            font-size: 0.8em;
+            color: #565959; /* Grey for labels */
+        }
+        .product-info .price {
+            font-size: 1.8em;
+            color: #B12704; /* Amazon's price red */
+            line-height: 1.2;
+            margin: 2px 0;
+        }
+
+        .product-info .description ul {
+            padding-left: 20px;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+        .product-info .description li {
+            margin-bottom: 8px;
+        }
+        .product-info .description p {
+            line-height: 1.5;
+        }
+
+
+        /* --- Actions/Buy Box Column --- */
+        .product-actions {
+            flex: 0 0 250px; /* Fixed width for buy box */
+            border: 1px solid #DDD;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fdfdfd; /* Slightly off-white */
+            height: fit-content; /* Only as tall as needed */
+        }
+        .product-actions .price-sidebar {
+            font-size: 1.7em;
+            color: #B12704;
+            margin-bottom: 10px;
+        }
+        .product-actions .delivery-info {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .product-actions .stock {
+            color: #007600; /* Amazon's green 'in stock' */
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .product-actions label {
+            margin-right: 5px;
+            font-size: 0.9em;
+        }
+        .product-actions select {
+            padding: 5px 8px;
+            margin-bottom: 15px;
+            border-radius: 3px;
+            border: 1px solid #AAA;
+            background-color: #f0f2f2;
+            box-shadow: 0 1px 2px rgba(15,17,17,.15) inset;
+        }
+        .product-actions select:hover {
+             background-color: #e3e6e6;
+        }
+
+        .product-actions button {
+            display: block;
+            width: 100%;
+            padding: 10px 0; /* Vertical padding only */
+            border-radius: 20px; /* Pill shape */
+            border: 1px solid;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin-bottom: 12px;
+            text-align: center;
+            box-shadow: 0 1px 0 rgba(255,255,255,.4) inset; /* Subtle inner top highlight */
+        }
+        #add-to-cart-btn {
+            background-color: #FFD814; /* Amazon Yellow */
+            border-color: #FCD21C;
+            color: #0F1111;
+        }
+        #add-to-cart-btn:hover {
+            background-color: #f7ca00;
+        }
+        #buy-now-btn {
+            background-color: #FFA41C; /* Amazon Orange */
+            border-color: #FF8F00;
+            color: #0F1111;
+        }
+        #buy-now-btn:hover {
+            background-color: #fa8900;
+        }
+
+        .product-actions .secure-transaction {
+            font-size: 0.9em;
+            color: #007185;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .product-actions .secure-transaction .lock-icon { /* Style lock icon */
+             margin-right: 5px;
+             color: #777;
+        }
+
+        .product-actions .seller-info {
+            font-size: 0.8em;
+            color: #565959;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        .product-actions .seller-info span {
+             color: #0F1111;
+        }
+        .product-actions .seller-info a {
+            margin-left: 5px;
+        }
+
+        .product-actions hr {
+            border: none;
+            border-top: 1px solid #DDD;
+            margin: 15px 0;
+        }
+        #add-to-list-btn {
+            background-color: #FFF;
+            border-color: #D5D9D9;
+            color: #0f1111;
+            box-shadow: 0 1px 0 rgba(213,217,217,.5);
+            font-size: 0.85em;
+            padding: 8px 0;
+            border-radius: 8px; /* Less rounded than buy buttons */
+            width: auto; /* Don't force full width */
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+         #add-to-list-btn:hover {
+             background-color: #F7FAFA;
+         }
+
+        /* --- "Fooled You" Message --- */
+        #fooled-message {
+            display: none; /* Initially hidden */
+            max-width: 1200px; /* Match content width */
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #fff3cd; /* Light yellow warning background */
+            border: 1px solid #ffeeba; /* Matching border */
+            border-left: 5px solid #ffc107; /* Prominent yellow left border */
+            color: #856404; /* Dark yellow text for contrast */
+            font-size: 1.5em;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        /* --- Footer --- */
+         .back-to-top {
+            background-color: #37475A;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+            cursor: pointer;
+         }
+         .back-to-top:hover {
+            background-color: #485769;
+         }
+
+        footer {
+            background-color: #131921;
+            color: #DDD;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 0; /* Remove margin if using back-to-top */
+            font-size: 0.8em;
+        }
+         footer .footer-links { /* Container for link columns */
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-around;
+            text-align: left;
+            flex-wrap: wrap; /* Allow wrapping */
+         }
+         footer .link-col {
+            margin: 10px 20px;
+         }
+         footer h4 {
+            color: white;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+         }
+         footer ul {
+            list-style: none;
+            padding: 0;
+         }
+         footer li {
+            margin-bottom: 8px;
+         }
+         footer a {
+            color: #DDD;
+            text-decoration: none;
+            font-size: 0.95em;
+         }
+         footer a:hover {
+            text-decoration: underline;
+            color: #FFF;
+         }
+         .footer-bottom {
+            border-top: 1px solid #3a4553;
+            padding-top: 20px;
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #AAA;
+         }
+         /* Add more footer styles for logo, language selector etc. if needed */
+
+        /* --- Placeholder sections --- */
+        .placeholder-section {
+            max-width: 1300px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-top: 1px solid #ddd;
+        }
+         .placeholder-section h2 {
+             font-weight: bold;
+             font-size: 1.3em;
+             margin-bottom: 15px;
+         }
+
+        /* Basic Responsive Adjustments */
+        @media (max-width: 1000px) {
+            .product-page {
+                flex-direction: column; /* Stack columns */
+                align-items: center; /* Center items when stacked */
+            }
+            .product-actions {
+                width: 90%; /* Make buy box wider */
+                max-width: 400px; /* But not too wide */
+                margin-top: 20px;
+                flex-basis: auto; /* Reset flex basis */
+            }
+            .product-info {
+                 flex-basis: auto; /* Reset flex basis */
+                 width: 90%; /* Take most width */
+            }
+             .product-image {
+                 flex-basis: auto; /* Reset flex basis */
+                 max-width: 90%;
+             }
+            .search-bar {
+                order: 3; /* Move search bar down in header */
+                width: 100%;
+                margin: 10px 0;
+            }
+            .header-right {
+                 margin-left: 10px; /* Adjust spacing */
+            }
+             .footer-links {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+             }
+        }
+        @media (max-width: 600px) {
+            header { padding: 5px 10px; }
+            .logo { font-size: 1.5em; }
+            .header-right a { font-size: 0.8em; padding: 5px; }
+             #cart-link .cart-icon { font-size: 1.3em; }
+            nav { font-size: 0.8em; }
+            nav a { padding: 6px 8px; }
+            .product-info h1 { font-size: 1.4em; }
+            .product-info .price { font-size: 1.6em; }
+            .product-actions { width: 100%; padding: 15px; }
+            #fooled-message { font-size: 1.2em; padding: 15px; }
+        }
+        /* --- CSS STYLES END --- */
+    </style>
 </head>
 <body>
+
     <header>
-        <h1>Welcome to Medivive</h1>
-        <p>Your trusted online pharmacy for a healthier life.</p>
+        <a href="#" class="logo">amazin</a>
+        <div class="location">
+             <!-- Location selector placeholder -->
+             <span style="font-size:0.9em; display: block;">Deliver to</span>
+            <strong>User - City 12345</strong>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search Amazin">
+            <button type="submit"><span class="search-icon">🔍</span></button> <!-- Search Icon -->
+        </div>
+        <div class="header-right">
+            <!-- Account, Orders, Cart placeholders -->
+            <a href="#"><span>Hello, sign in</span><strong>Account & Lists</strong></a>
+            <a href="#"><strong>Returns<br>& Orders</strong></a>
+            <a href="#" id="cart-link">
+                <span class="cart-icon">🛒</span> Cart <span id="cart-count">(0)</span>
+            </a>
+        </div>
     </header>
 
-    <section>
-        <h2>About Medivive</h2>
-        <p>At Medivive, we provide a wide range of high-quality medicines to keep you and your loved ones healthy. From pain relief to chronic condition management, we've got you covered.</p>
-    </section>
+    <nav>
+        <a href="#">☰ All</a>
+        <a href="#">Today's Deals</a>
+        <a href="#">Customer Service</a>
+        <a href="#">Registry</a>
+        <a href="#">Gift Cards</a>
+        <a href="#">Sell</a>
+        <!-- Add more nav links like Amazon -->
+    </nav>
 
-    <section>
-        <h2>Why Choose Us?</h2>
-        <ul>
-            <li>Wide selection of trusted medications</li>
-            <li>Fast and reliable delivery</li>
-            <li>Secure checkout process</li>
-            <li>Expert customer support</li>
-        </ul>
-    </section>
+     <!-- Optional: Back to Top Link -->
+     <div class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
+        Back to top
+    </div>
 
-    <section>
-        <h2>Start Shopping</h2>
-        <p>Explore our wide range of products and find the medications you need.</p>
-        <a href="products.html" class="button">Shop Now</a>
-        <a href="contact.html" class="contact-button">Contact Us</a>
-    </section>
+    <main class="product-page">
+        <div class="product-image">
+            <!-- Placeholder Image - Replace with a real product image URL -->
+            <img src="https://m.media-amazon.com/images/I/71NTi82uBEL._AC_SX679_.jpg" alt="Awesome Product"> <!-- Example real-looking image URL -->
+            <!-- Add more thumbnail images below if desired -->
+        </div>
+
+        <div class="product-info">
+            <h1>Echo Dot (5th Gen, 2022 release) | With bigger vibrant sound, helpful routines and Alexa | Charcoal</h1>
+            <a href="#" class="brand-link">Visit the Amazin Store</a>
+            <div class="rating">
+                <span>★★★★☆</span> <a href="#">154,897 ratings</a> | <a href="#">1000+ answered questions</a>
+            </div>
+             <hr>
+             <div class="price-section">
+                 <span class="price-label">List Price: <span style="text-decoration: line-through;">$49.99</span></span><br>
+                <span class="price">$34.99</span>
+                <span style="font-size: 0.9em; color: #565959;"> typical price</span><br>
+                <span style="font-size: 0.9em; color: #565959;">Save: $15.00 (30%)</span>
+            </div>
+             <hr>
+            <div class="description">
+                <p><strong>Style:</strong> Echo Dot</p>
+                <ul>
+                    <li>OUR BEST SOUNDING ECHO DOT YET – Enjoy an improved audio experience compared to any previous Echo Dot with Alexa for clearer vocals, deeper bass and vibrant sound in any room.</li>
+                    <li>YOUR FAVORITE MUSIC AND CONTENT – Play music, audiobooks, and podcasts from Amazon Music, Apple Music, Spotify and others or via Bluetooth throughout your home.</li>
+                    <li>ALEXA IS HAPPY TO HELP – Ask Alexa for weather updates and to set hands-free timers, get answers to your questions and even hear jokes. Need a few extra minutes in the morning? Just tap your Echo Dot to snooze your alarm.</li>
+                    <li>KEEP YOUR HOME COMFORTABLE – Control compatible smart home devices with your voice and routines triggered by built-in motion or indoor temperature sensors. Create routines to automatically turn on lights when you walk into a room, or start a fan if the inside temperature goes above your comfort zone.</li>
+                    <li>DESIGNED TO PROTECT YOUR PRIVACY – Amazon is not in the business of selling your personal information to others. Built with multiple layers of privacy controls, including a mic off button.</li>
+                    <li>DO MORE WITH DEVICE PAIRING – Fill your home with music using compatible Echo devices in different rooms, create a home theatre system with Fire TV.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="product-actions">
+            <div class="price-sidebar">$34.99</div>
+            <div class="delivery-info">
+                 <span style="color: #007185;">FREE delivery</span> <strong>Tomorrow, Oct 27</strong>. Order within <span style="color:#007600;">10 hrs 3 mins</span>.<br>
+                 Or fastest delivery <span style="color: #007185;">Today</span>. <a href="#">Details</a><br>
+                 📍 Deliver to User - City 12345
+            </div>
+
+            <p class="stock">In Stock.</p>
+            <label for="quantity">Qty:</label>
+            <select id="quantity" name="quantity">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <button id="add-to-cart-btn">Add to Cart</button>
+            <button id="buy-now-btn">Buy Now</button>
+
+            <div class="secure-transaction">
+                <span class="lock-icon">🔒</span> Secure transaction
+            </div>
+
+            <div class="seller-info">
+                Ships from <span>Amazin.com</span><br>
+                Sold by <span>Amazin.com</span><br>
+                Returns <a href="#">Eligible for Return, Refund or Replacement within 30 days of receipt</a><br>
+                Payment <a href="#">Secure transaction</a>
+            </div>
+
+            <hr>
+            <button id="add-to-list-btn">Add to List</button>
+        </div>
+
+    </main>
+
+    <!-- The "Fooled You" Message Area -->
+    <div id="fooled-message">
+        Fooled You! 😉 This isn't real Amazon, and you can't actually buy this! Nice try!
+    </div>
+
+    <!-- Placeholder for related products, reviews etc. -->
+    <div class="placeholder-section">
+        <h2>Products related to this item</h2>
+        <!-- Add fake related products here -->
+        <p>(More fake product listings, comparison charts, etc., would go here...)</p>
+        <hr style="margin: 20px 0;">
+        <h2>Customer Reviews</h2>
+        <!-- Add fake reviews here -->
+        <p>(Fake customer reviews, ratings breakdown, review highlights, etc., would go here...)</p>
+    </div>
+
+
     <footer>
-        <p>&copy; 2025 Medivive. All rights reserved.</p>
+        <div class="footer-links">
+             <div class="link-col">
+                 <h4>Get to Know Us</h4>
+                 <ul>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">About Amazin</a></li>
+                    <li><a href="#">Investor Relations</a></li>
+                    <li><a href="#">Amazin Devices</a></li>
+                    <li><a href="#">Amazin Science</a></li>
+                 </ul>
+             </div>
+              <div class="link-col">
+                 <h4>Make Money with Us</h4>
+                 <ul>
+                    <li><a href="#">Sell products on Amazin</a></li>
+                    <li><a href="#">Sell on Amazin Business</a></li>
+                    <li><a href="#">Sell apps on Amazin</a></li>
+                    <li><a href="#">Become an Affiliate</a></li>
+                    <li><a href="#">Advertise Your Products</a></li>
+                    <li><a href="#">Self-Publish with Us</a></li>
+                    <li><a href="#">Host an Amazin Hub</a></li>
+                    <li><a href="#">› See More Make Money with Us</a></li>
+                 </ul>
+             </div>
+              <div class="link-col">
+                 <h4>Amazin Payment Products</h4>
+                 <ul>
+                    <li><a href="#">Amazin Business Card</a></li>
+                    <li><a href="#">Shop with Points</a></li>
+                    <li><a href="#">Reload Your Balance</a></li>
+                    <li><a href="#">Amazin Currency Converter</a></li>
+                 </ul>
+             </div>
+              <div class="link-col">
+                 <h4>Let Us Help You</h4>
+                 <ul>
+                    <li><a href="#">Amazin and COVID-19</a></li>
+                    <li><a href="#">Your Account</a></li>
+                    <li><a href="#">Your Orders</a></li>
+                    <li><a href="#">Shipping Rates & Policies</a></li>
+                    <li><a href="#">Returns & Replacements</a></li>
+                    <li><a href="#">Manage Your Content and Devices</a></li>
+                    <li><a href="#">Amazin Assistant</a></li>
+                    <li><a href="#">Help</a></li>
+                 </ul>
+             </div>
+        </div>
+        <div class="footer-bottom">
+             <!-- Placeholder for logo, language, currency, country -->
+             <span>Amazin Logo Placeholder</span> |
+             <a href="#">Conditions of Use</a> |
+             <a href="#">Privacy Notice</a> |
+             <a href="#">Your Ads Privacy Choices</a> |
+             © 1996-2023, Amazin.com, Inc. or its affiliates (not really)
+        </div>
     </footer>
-    <div id="chat-container" style="position: fixed; bottom: 20px; right: 20px;">
-  <button onclick="toggleChat()" style="background: #2e7d32; color: white; padding: 10px 15px; border-radius: 8px;">Chat with Medivive</button>
-  <div id="chat-box" style="display: none; width: 300px; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 10px; margin-top: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-    <div id="chat-log" style="height: 200px; overflow-y: auto; font-size: 14px; margin-bottom: 10px;"></div>
-    <input type="text" id="user-input" placeholder="Ask me something..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" />
-    <button onclick="sendMessage()" style="margin-top: 5px; width: 100%; background-color: #2e7d32; color: white; padding: 8px; border: none; border-radius: 5px;">Send</button>
-      <script src="script.js"></script>
-  </div>
+
+
+    <script>
+        // --- JAVASCRIPT START ---
+
+        // Wait for the HTML document to be fully loaded before running script
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Get references to the important elements
+            const addToCartButton = document.getElementById('add-to-cart-btn');
+            const buyNowButton = document.getElementById('buy-now-btn');
+            const fooledMessageDiv = document.getElementById('fooled-message');
+            const cartCountSpan = document.getElementById('cart-count');
+            let cartItemCount = 0; // Initialize cart count
+
+            // Function to show the "Fooled You" message
+            function showFooledMessage(event) {
+                // Prevent default button action (though not strictly needed here)
+                event.preventDefault();
+
+                // Make the message visible
+                fooledMessageDiv.style.display = 'block';
+
+                 // Optional: Scroll to the message so the user sees it
+                fooledMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                console.log("Button clicked, showing 'Fooled You' message."); // For debugging
+            }
+
+            // Add event listener to the "Add to Cart" button
+            if (addToCartButton) {
+                addToCartButton.addEventListener('click', function(event) {
+                    showFooledMessage(event);
+
+                    // Optional: Increment cart count visually for added realism
+                    cartItemCount++;
+                    if (cartCountSpan) {
+                        cartCountSpan.textContent = `(${cartItemCount})`;
+                         // Make the count orange again if it was reset
+                         cartCountSpan.style.color = '#FF9900';
+                         // Slightly bounce the cart icon (example effect)
+                         const cartLink = document.getElementById('cart-link');
+                         if(cartLink) {
+                             cartLink.style.transform = 'scale(1.1)';
+                             setTimeout(() => { cartLink.style.transform = 'scale(1)'; }, 150);
+                         }
+                    }
+                });
+            } else {
+                console.error("Add to Cart button not found!");
+            }
+
+            // Add event listener to the "Buy Now" button
+            if (buyNowButton) {
+                buyNowButton.addEventListener('click', showFooledMessage);
+            } else {
+                console.error("Buy Now button not found!");
+            }
+
+        }); // End of DOMContentLoaded listener
+
+        // --- JAVASCRIPT END ---
+    </script>
+
 </body>
 </html>
