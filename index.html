@@ -1,1 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mik's Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background-color: #ffffff; /* White calculator background */
+            padding: 1.5rem;
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            max-width: 24rem; /* Max width for larger screens */
+            width: 90%; /* Responsive width */
+            border: 1px solid #e2e8f0; /* Light border */
+        }
+        .display {
+            background-color: #f8fafc; /* Lighter display background */
+            min-height: 4rem;
+            border-radius: 0.75rem; /* Rounded display */
+            padding: 1rem;
+            font-size: 2.25rem; /* Larger font size */
+            text-align: right;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            color: #1a202c; /* Dark text color */
+            overflow: hidden; /* Prevent text overflow */
+            word-break: break-all; /* Break long words */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06); /* Inner shadow for depth */
+        }
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem; /* Gap between buttons */
+        }
+        .calc-button {
+            background-color: #e2e8f0; /* Light gray buttons */
+            color: #4a5568; /* Darker gray text */
+            font-size: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.75rem; /* Rounded buttons */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            user-select: none; /* Prevent text selection */
+            min-width: 3.5rem; /* Minimum width for buttons */
+            min-height: 3.5rem; /* Minimum height for buttons */
+        }
+        .calc-button:hover {
+            background-color: #cbd5e0; /* Darker on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
+        }
+        .calc-button:active {
+            background-color: #a0aec0; /* Even darker on active */
+            transform: translateY(0); /* Press effect */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .calc-button.operator {
+            background-color: #fbd38d; /* Orange for operators */
+            color: #975a16; /* Darker orange text */
+        }
+        .calc-button.operator:hover {
+            background-color: #f6ad55;
+        }
+        .calc-button.operator:active {
+            background-color: #dd6b20;
+        }
+        .calc-button.equals {
+            background-color: #63b3ed; /* Blue for equals */
+            color: #ffffff; /* White text */
+            grid-column: span 2; /* Make equals button span two columns */
+        }
+        .calc-button.equals:hover {
+            background-color: #4299e1;
+        }
+        .calc-button.equals:active {
+            background-color: #2b6cb0;
+        }
+        .calc-button.clear {
+            background-color: #fc8181; /* Red for clear */
+            color: #ffffff; /* White text */
+        }
+        .calc-button.clear:hover {
+            background-color: #e53e3e;
+        }
+        .calc-button.clear:active {
+            background-color: #c53030;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div id="display" class="display">0</div>
+        <div class="buttons-grid">
+            <button class="calc-button clear">C</button>
+            <button class="calc-button operator" data-value="/">/</button>
+            <button class="calc-button operator" data-value="*">*</button>
+            <button class="calc-button" data-value="7">7</button>
+            <button class="calc-button" data-value="8">8</button>
+            <button class="calc-button" data-value="9">9</button>
+            <button class="calc-button operator" data-value="-">-</button>
+            <button class="calc-button" data-value="4">4</button>
+            <button class="calc-button" data-value="5">5</button>
+            <button class="calc-button" data-value="6">6</button>
+            <button class="calc-button operator" data-value="+">+</button>
+            <button class="calc-button" data-value="1">1</button>
+            <button class="calc-button" data-value="2">2</button>
+            <button class="calc-button" data-value="3">3</button>
+            <button class="calc-button equals">=</button>
+            <button class="calc-button" data-value="0">0</button>
+            <button class="calc-button" data-value=".">.</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const buttons = document.querySelectorAll('.calc-button');
+
+        let currentInput = ''; // Stores the current number being typed or the result
+        let operator = null;    // Stores the last pressed operator
+        let prevInput = '';     // Stores the previous number before an operator was pressed
+        let resultDisplayed = false; // Flag to check if a result is currently displayed
+
+        // Function to update the display
+        function updateDisplay(value) {
+            display.textContent = value;
+        }
+
+        // Handle button clicks
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const buttonValue = button.dataset.value || button.textContent.trim();
+
+                // Handle 'C' (Clear) button
+                if (button.classList.contains('clear')) {
+                    currentInput = '';
+                    operator = null;
+                    prevInput = '';
+                    resultDisplayed = false;
+                    updateDisplay('0');
+                    return; // Exit function
+                }
+
+                // Handle '=' (Equals) button
+                if (button.classList.contains('equals')) {
+                    if (prevInput !== '' && currentInput !== '' && operator !== null) {
+                        try {
+                            // Using Function constructor for safer evaluation than direct eval()
+                            // It's still important to ensure only valid math expressions are built.
+                            let expression = prevInput + operator + currentInput;
+                            let result = new Function('return ' + expression)();
+
+                            // Handle floating point precision issues by rounding
+                            // For a simple calculator, rounding to a few decimal places is often sufficient.
+                            if (result.toString().includes('.')) {
+                                result = parseFloat(result.toFixed(8)); // Round to 8 decimal places
+                            }
+
+                            updateDisplay(result);
+                            currentInput = result.toString();
+                            prevInput = '';
+                            operator = null;
+                            resultDisplayed = true;
+                        } catch (e) {
+                            updateDisplay('Error');
+                            currentInput = '';
+                            prevInput = '';
+                            operator = null;
+                            resultDisplayed = true;
+                            console.error("Calculation error: ", e);
+                        }
+                    }
+                    return; // Exit function
+                }
+
+                // If a result was displayed and a new number is pressed, start a new calculation
+                if (resultDisplayed && !isNaN(buttonValue)) { // If it's a number
+                    currentInput = buttonValue;
+                    resultDisplayed = false;
+                    updateDisplay(currentInput);
+                    return;
+                }
+                // If a result was displayed and an operator is pressed, continue with the result
+                if (resultDisplayed && (button.classList.contains('operator') || buttonValue === '.')) {
+                    resultDisplayed = false; // Allow continuing the operation from the result
+                    // Do nothing for now, let the operator logic handle it
+                }
+
+
+                // Handle number and decimal point input
+                if (!isNaN(buttonValue) || buttonValue === '.') {
+                    // Prevent multiple decimal points in a single number
+                    if (buttonValue === '.' && currentInput.includes('.')) {
+                        return;
+                    }
+                    // If currentInput is '0' and a number is pressed, replace '0'
+                    if (currentInput === '0' && buttonValue !== '.') {
+                        currentInput = buttonValue;
+                    } else {
+                        currentInput += buttonValue;
+                    }
+                    updateDisplay(currentInput);
+                }
+                // Handle operator input
+                else if (button.classList.contains('operator')) {
+                    if (currentInput === '') {
+                        // If no number is typed yet, and an operator is pressed,
+                        // allow changing the operator if one was already selected.
+                        if (prevInput !== '' && operator !== null) {
+                             operator = buttonValue;
+                             // No display update needed, as we just change the internal operator
+                             // The display should still show the previous number.
+                        } else {
+                             // If no previous input or current input, and an operator is pressed,
+                             // it means the user wants to start with a number.
+                             // Example: User presses '+' then '5'. We should show '0' and then '5'.
+                             // No change to display, it will show '0'.
+                             // We are not handling unary plus/minus at the beginning.
+                        }
+                        return;
+                    }
+
+                    if (prevInput !== '' && operator !== null) {
+                        // If there's a pending operation, calculate it first
+                        try {
+                            let expression = prevInput + operator + currentInput;
+                            let result = new Function('return ' + expression)();
+                            if (result.toString().includes('.')) {
+                                result = parseFloat(result.toFixed(8));
+                            }
+                            prevInput = result.toString();
+                            updateDisplay(prevInput); // Show intermediate result
+                            currentInput = '';
+                            operator = buttonValue;
+                        } catch (e) {
+                            updateDisplay('Error');
+                            currentInput = '';
+                            prevInput = '';
+                            operator = null;
+                            resultDisplayed = true;
+                            console.error("Intermediate calculation error: ", e);
+                        }
+                    } else {
+                        // Store current input as previous input and set the operator
+                        prevInput = currentInput;
+                        operator = buttonValue;
+                        currentInput = ''; // Clear current input for the next number
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
 
