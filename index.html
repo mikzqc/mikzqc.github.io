@@ -3,272 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mik's Calculator</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
+        /* Custom font for the display */
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Custom font for buttons */
+        .font-inter {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; /* Light gray background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
         }
-        .calculator {
-            background-color: #ffffff; /* White calculator background */
-            padding: 1.5rem;
-            border-radius: 1.5rem; /* More rounded corners */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Soft shadow */
-            max-width: 24rem; /* Max width for larger screens */
-            width: 90%; /* Responsive width */
-            border: 1px solid #e2e8f0; /* Light border */
+        /* Prevents highlighting text on fast clicks */
+        .calculator-button {
+            user-select: none;
+            -webkit-user-select: none; /* For Safari */
+            -moz-user-select: none;    /* For Firefox */
+            -ms-user-select: none;     /* For Internet Explorer/Edge */
         }
-        .display {
-            background-color: #f8fafc; /* Lighter display background */
-            min-height: 4rem;
-            border-radius: 0.75rem; /* Rounded display */
-            padding: 1rem;
-            font-size: 2.25rem; /* Larger font size */
-            text-align: right;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-end;
-            color: #1a202c; /* Dark text color */
-            overflow: hidden; /* Prevent text overflow */
-            word-break: break-all; /* Break long words */
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06); /* Inner shadow for depth */
-        }
-        .buttons-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.75rem; /* Gap between buttons */
-        }
-        .calc-button {
-            background-color: #e2e8f0; /* Light gray buttons */
-            color: #4a5568; /* Darker gray text */
-            font-size: 1.5rem;
-            padding: 1rem;
-            border-radius: 0.75rem; /* Rounded buttons */
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: 500;
-            user-select: none; /* Prevent text selection */
-            min-width: 3.5rem; /* Minimum width for buttons */
-            min-height: 3.5rem; /* Minimum height for buttons */
-        }
-        .calc-button:hover {
-            background-color: #cbd5e0; /* Darker on hover */
-            transform: translateY(-2px); /* Slight lift effect */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
-        }
-        .calc-button:active {
-            background-color: #a0aec0; /* Even darker on active */
-            transform: translateY(0); /* Press effect */
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .calc-button.operator {
-            background-color: #fbd38d; /* Orange for operators */
-            color: #975a16; /* Darker orange text */
-        }
-        .calc-button.operator:hover {
-            background-color: #f6ad55;
-        }
-        .calc-button.operator:active {
-            background-color: #dd6b20;
-        }
-        .calc-button.equals {
-            background-color: #63b3ed; /* Blue for equals */
-            color: #ffffff; /* White text */
-            grid-column: span 2; /* Make equals button span two columns */
-        }
-        .calc-button.equals:hover {
-            background-color: #4299e1;
-        }
-        .calc-button.equals:active {
-            background-color: #2b6cb0;
-        }
-        .calc-button.clear {
-            background-color: #fc8181; /* Red for clear */
-            color: #ffffff; /* White text */
-        }
-        .calc-button.clear:hover {
-            background-color: #e53e3e;
-        }
-        .calc-button.clear:active {
-            background-color: #c53030;
+        /* Custom focus ring for accessibility */
+        .calculator-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); /* A soft blue glow */
         }
     </style>
 </head>
-<body>
-    <div class="calculator">
-        <div id="display" class="display">0</div>
-        <div class="buttons-grid">
-            <button class="calc-button clear">C</button>
-            <button class="calc-button operator" data-value="/">/</button>
-            <button class="calc-button operator" data-value="*">*</button>
-            <button class="calc-button" data-value="7">7</button>
-            <button class="calc-button" data-value="8">8</button>
-            <button class="calc-button" data-value="9">9</button>
-            <button class="calc-button operator" data-value="-">-</button>
-            <button class="calc-button" data-value="4">4</button>
-            <button class="calc-button" data-value="5">5</button>
-            <button class="calc-button" data-value="6">6</button>
-            <button class="calc-button operator" data-value="+">+</button>
-            <button class="calc-button" data-value="1">1</button>
-            <button class="calc-button" data-value="2">2</button>
-            <button class="calc-button" data-value="3">3</button>
-            <button class="calc-button equals">=</button>
-            <button class="calc-button" data-value="0">0</button>
-            <button class="calc-button" data-value=".">.</button>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen font-inter">
+
+    <div class="w-full max-w-sm mx-auto bg-gray-800 rounded-2xl shadow-2xl p-4 space-y-4">
+        <!-- Calculator Display -->
+        <div class="bg-gray-900/50 rounded-lg p-4 text-right break-words">
+            <div id="expression" class="text-gray-400 text-xl h-7 font-orbitron"></div>
+            <div id="display" class="text-white text-5xl font-orbitron">0</div>
+        </div>
+
+        <!-- Calculator Buttons -->
+        <div class="grid grid-cols-4 gap-3">
+            <!-- Row 1 -->
+            <button class="calculator-button bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="clear">AC</button>
+            <button class="calculator-button bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="backspace">DEL</button>
+            <button class="calculator-button bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="%">%</button>
+            <button class="calculator-button bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="/">÷</button>
+
+            <!-- Row 2 -->
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="7">7</button>
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="8">8</button>
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="9">9</button>
+            <button class="calculator-button bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="*">×</button>
+
+            <!-- Row 3 -->
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="4">4</button>
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="5">5</button>
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="6">6</button>
+            <button class="calculator-button bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="-">−</button>
+
+            <!-- Row 4 -->
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="1">1</button>
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="2">2</button>
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="3">3</button>
+            <button class="calculator-button bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="+">+</button>
+
+            <!-- Row 5 -->
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150 col-span-2" data-key="0">0</button>
+            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key=".">.</button>
+            <button class="calculator-button bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="=">=</button>
         </div>
     </div>
 
     <script>
-        const display = document.getElementById('display');
-        const buttons = document.querySelectorAll('.calc-button');
+        document.addEventListener('DOMContentLoaded', () => {
+            const display = document.getElementById('display');
+            const expressionDiv = document.getElementById('expression');
+            const buttons = document.querySelectorAll('.calculator-button');
 
-        let currentInput = ''; // Stores the current number being typed or the result
-        let operator = null;    // Stores the last pressed operator
-        let prevInput = '';     // Stores the previous number before an operator was pressed
-        let resultDisplayed = false; // Flag to check if a result is currently displayed
+            let currentInput = '0';
+            let expression = '';
+            let hasCalculated = false;
 
-        // Function to update the display
-        function updateDisplay(value) {
-            display.textContent = value;
-        }
+            // Function to update the display
+            const updateDisplay = () => {
+                display.textContent = currentInput;
+                expressionDiv.textContent = expression.replace(/\*/g, '×').replace(/\//g, '÷');
+            };
 
-        // Handle button clicks
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                const buttonValue = button.dataset.value || button.textContent.trim();
-
-                // Handle 'C' (Clear) button
-                if (button.classList.contains('clear')) {
-                    currentInput = '';
-                    operator = null;
-                    prevInput = '';
-                    resultDisplayed = false;
-                    updateDisplay('0');
-                    return; // Exit function
+            // Function to handle button clicks
+            const handleInput = (key) => {
+                const isNumber = !isNaN(parseInt(key));
+                const isOperator = ['+', '-', '*', '/', '%'].includes(key);
+                
+                if (hasCalculated && !isOperator && key !== '=') {
+                    // Start a new calculation after '='
+                    currentInput = '0';
+                    expression = '';
+                    hasCalculated = false;
                 }
 
-                // Handle '=' (Equals) button
-                if (button.classList.contains('equals')) {
-                    if (prevInput !== '' && currentInput !== '' && operator !== null) {
-                        try {
-                            // Using Function constructor for safer evaluation than direct eval()
-                            // It's still important to ensure only valid math expressions are built.
-                            let expression = prevInput + operator + currentInput;
-                            let result = new Function('return ' + expression)();
-
-                            // Handle floating point precision issues by rounding
-                            // For a simple calculator, rounding to a few decimal places is often sufficient.
-                            if (result.toString().includes('.')) {
-                                result = parseFloat(result.toFixed(8)); // Round to 8 decimal places
-                            }
-
-                            updateDisplay(result);
-                            currentInput = result.toString();
-                            prevInput = '';
-                            operator = null;
-                            resultDisplayed = true;
-                        } catch (e) {
-                            updateDisplay('Error');
-                            currentInput = '';
-                            prevInput = '';
-                            operator = null;
-                            resultDisplayed = true;
-                            console.error("Calculation error: ", e);
-                        }
-                    }
-                    return; // Exit function
-                }
-
-                // If a result was displayed and a new number is pressed, start a new calculation
-                if (resultDisplayed && !isNaN(buttonValue)) { // If it's a number
-                    currentInput = buttonValue;
-                    resultDisplayed = false;
-                    updateDisplay(currentInput);
-                    return;
-                }
-                // If a result was displayed and an operator is pressed, continue with the result
-                if (resultDisplayed && (button.classList.contains('operator') || buttonValue === '.')) {
-                    resultDisplayed = false; // Allow continuing the operation from the result
-                    // Do nothing for now, let the operator logic handle it
-                }
-
-
-                // Handle number and decimal point input
-                if (!isNaN(buttonValue) || buttonValue === '.') {
-                    // Prevent multiple decimal points in a single number
-                    if (buttonValue === '.' && currentInput.includes('.')) {
-                        return;
-                    }
-                    // If currentInput is '0' and a number is pressed, replace '0'
-                    if (currentInput === '0' && buttonValue !== '.') {
-                        currentInput = buttonValue;
+                if (isNumber) {
+                    if (currentInput === '0' || hasCalculated) {
+                        currentInput = key;
+                        hasCalculated = false;
                     } else {
-                        currentInput += buttonValue;
+                        currentInput += key;
                     }
-                    updateDisplay(currentInput);
-                }
-                // Handle operator input
-                else if (button.classList.contains('operator')) {
-                    if (currentInput === '') {
-                        // If no number is typed yet, and an operator is pressed,
-                        // allow changing the operator if one was already selected.
-                        if (prevInput !== '' && operator !== null) {
-                             operator = buttonValue;
-                             // No display update needed, as we just change the internal operator
-                             // The display should still show the previous number.
-                        } else {
-                             // If no previous input or current input, and an operator is pressed,
-                             // it means the user wants to start with a number.
-                             // Example: User presses '+' then '5'. We should show '0' and then '5'.
-                             // No change to display, it will show '0'.
-                             // We are not handling unary plus/minus at the beginning.
-                        }
-                        return;
+                } else if (key === '.') {
+                    // Prevent multiple decimal points in one number
+                    if (!currentInput.includes('.')) {
+                        currentInput += '.';
                     }
+                } else if (isOperator) {
+                    if (currentInput === 'Error') return;
+                    // Append current input and operator to expression
+                    expression += currentInput + key;
+                    currentInput = '0';
+                    hasCalculated = false;
+                } else if (key === '=') {
+                    if(expression === '' && currentInput === '0') return;
+                    
+                    expression += currentInput;
+                    try {
+                        // Using a function to evaluate is safer than direct eval
+                        const result = new Function('return ' + expression.replace(/%/g, '/100*'))();
 
-                    if (prevInput !== '' && operator !== null) {
-                        // If there's a pending operation, calculate it first
-                        try {
-                            let expression = prevInput + operator + currentInput;
-                            let result = new Function('return ' + expression)();
-                            if (result.toString().includes('.')) {
-                                result = parseFloat(result.toFixed(8));
-                            }
-                            prevInput = result.toString();
-                            updateDisplay(prevInput); // Show intermediate result
-                            currentInput = '';
-                            operator = buttonValue;
-                        } catch (e) {
-                            updateDisplay('Error');
-                            currentInput = '';
-                            prevInput = '';
-                            operator = null;
-                            resultDisplayed = true;
-                            console.error("Intermediate calculation error: ", e);
+                        if (!isFinite(result)) {
+                           throw new Error("Division by zero");
                         }
-                    } else {
-                        // Store current input as previous input and set the operator
-                        prevInput = currentInput;
-                        operator = buttonValue;
-                        currentInput = ''; // Clear current input for the next number
+                        
+                        // Format result to a reasonable number of decimal places
+                        currentInput = parseFloat(result.toPrecision(12)).toString();
+                        expression += ' =';
+                        hasCalculated = true;
+
+                    } catch (error) {
+                        currentInput = 'Error';
+                        expression = '';
                     }
+                } else if (key === 'clear') {
+                    currentInput = '0';
+                    expression = '';
+                    hasCalculated = false;
+                } else if (key === 'backspace') {
+                    if (currentInput === 'Error' || hasCalculated) {
+                        // If there's an error or after a calculation, backspace should clear
+                        currentInput = '0';
+                        expression = '';
+                        hasCalculated = false;
+                    } else if (currentInput.length > 1) {
+                        currentInput = currentInput.slice(0, -1);
+                    } else {
+                        currentInput = '0';
+                    }
+                }
+                
+                updateDisplay();
+            };
+
+            // Add event listeners to all buttons
+            buttons.forEach(button => {
+                button.addEventListener('click', () => handleInput(button.dataset.key));
+            });
+
+            // Add keyboard support
+            document.addEventListener('keydown', (event) => {
+                let key = event.key;
+                
+                // Map keyboard keys to calculator keys
+                if (key === 'Enter') key = '=';
+                if (key === 'Backspace') key = 'backspace';
+                if (key === 'Escape') key = 'clear';
+                if (key === 'x' || key === 'X') key = '*';
+                if (key === 'd' || key === '/') key = '/';
+
+
+                const button = document.querySelector(`.calculator-button[data-key="${key}"]`);
+                if (button) {
+                    event.preventDefault(); // Prevent default browser actions
+                    button.click();
+                    // Add a visual feedback for key press
+                    button.classList.add('bg-gray-500');
+                    setTimeout(() => button.classList.remove('bg-gray-500'), 100);
                 }
             });
+
+            // Initialize the display
+            updateDisplay();
         });
     </script>
+
 </body>
 </html>
-
