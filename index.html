@@ -3,552 +3,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catch the Emojis!</title>
+    <title>Asteroid Shooter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* General Body Styling */
+        /* Custom styles for the game */
         body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0c0a18;
+            color: #e0e0e0;
+            overflow: hidden; /* Prevents scrollbars from appearing */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
             margin: 0;
-            overflow: hidden; /* Prevent scrollbars */
-            font-family: 'Inter', sans-serif; /* Modern font for aesthetics */
-            background: linear-gradient(135deg, #2c3e50, #34495e); /* Dark gradient background */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh; /* Full viewport height */
-            color: #ecf0f1; /* Light text color */
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-
-        /* Responsive Canvas Styling */
         canvas {
-            background-color: #2c3e50; /* Darker background for game area */
+            background-color: #000;
             display: block;
-            border-radius: 15px; /* Rounded corners for the game area */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 5px rgba(255, 255, 255, 0.1); /* Deep shadow with subtle border */
-            max-width: 95vw; /* Max width to fit most screens */
-            max-height: 80vh; /* Max height to fit most screens */
-            width: 100%; /* Will be set by JS, but useful as a fallback */
-            height: auto; /* Will be set by JS, but useful as a fallback */
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(76, 209, 255, 0.5);
+            cursor: none; /* Hide cursor over game area */
         }
-
-        /* Game Container */
         .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* Header and Score Display */
-        h1 {
-            font-size: 2.8em; /* Larger title */
-            color: #ffeb3b; /* Vibrant yellow */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            margin-bottom: 10px;
-            font-weight: 700; /* Bold */
-            letter-spacing: 1px;
-        }
-
-        .score-display {
-            font-size: 1.8em; /* Larger score */
-            color: #a7f3d0; /* Light green */
-            font-weight: 600;
-            margin-bottom: 15px;
-            padding: 10px 20px;
-            background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
-            border-radius: 10px;
-            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5); /* Inner shadow */
-        }
-
-        /* Control Buttons */
-        .controls {
-            display: flex;
-            gap: 15px; /* Space between buttons */
-            margin-top: 20px;
-        }
-
-        .control-button {
-            background: linear-gradient(145deg, #1abc9c, #16a085); /* Teal gradient */
-            color: white;
-            border: none;
-            border-radius: 10px; /* Rounded buttons */
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-            transition: all 0.3s ease; /* Smooth transitions for hover/active */
-            user-select: none; /* Prevent text selection on tap */
-            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
-            outline: none; /* Remove focus outline */
-        }
-
-        .control-button:hover {
-            transform: translateY(-3px); /* Lift effect */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-            background: linear-gradient(145deg, #16a085, #1abc9c); /* Subtle gradient shift */
-        }
-
-        .control-button:active {
-            transform: translateY(1px); /* Press effect */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Restart button specific style */
-        .control-button.restart-button {
-            background: linear-gradient(145deg, #e74c3c, #c0392b); /* Red gradient */
-        }
-        .control-button.restart-button:hover {
-            background: linear-gradient(145deg, #c0392b, #e74c3c);
-        }
-
-        /* Game Over / Info Message Box */
-        .message-box-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7); /* Dark overlay */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000; /* Ensure it's on top */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .message-box-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .message-box {
-            background: linear-gradient(145deg, #34495e, #2c3e50); /* Dark gradient */
-            color: #ecf0f1;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            max-width: 800px; /* Max width of the game area */
+            margin: auto;
             text-align: center;
-            max-width: 90vw;
-            width: 400px;
-            transform: translateY(-20px); /* Slight lift animation */
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
         }
-
-        .message-box-overlay.visible .message-box {
-            transform: translateY(0);
-            opacity: 1;
+        .ui-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            margin-bottom: 1rem;
         }
-
-        .message-box h2 {
-            font-size: 2.5em;
-            color: #ffeb3b;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-
-        .message-box p {
-            font-size: 1.3em;
-            margin-bottom: 25px;
-            line-height: 1.5;
-            color: #bdc3c7;
-        }
-
-        .message-box button {
-            background: linear-gradient(145deg, #3498db, #2980b9); /* Blue gradient */
+        #restartButton {
+            display: none; /* Hidden by default */
+            background: linear-gradient(145deg, #f97316, #ea580c);
             color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 25px;
-            font-size: 1.1em;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            outline: none;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
         }
-
-        .message-box button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-            background: linear-gradient(145deg, #2980b9, #3498db);
+        #restartButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
         }
-
-        .message-box button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        #gameOverModal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(12, 10, 24, 0.85);
+            padding: 2rem 3rem;
+            border-radius: 1rem;
+            text-align: center;
+            color: white;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            gap: 1.5rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
-        /* Font import for Inter */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen">
 
-    <div class="game-container">
-        <h1>Catch the Emojis!</h1>
-        <div class="score-display">Score: <span id="score">0</span></div>
-        <canvas id="gameCanvas"></canvas>
-        <div class="controls">
-            <button id="leftButton" class="control-button">👈 Left</button>
-            <button id="rightButton" class="control-button">👉 Right</button>
-            <button id="startButton" class="control-button restart-button">Start Game</button>
+    <div class="game-container p-4">
+        <!-- UI Panel for Score and Title -->
+        <div class="ui-panel">
+            <h1 class="text-2xl md:text-3xl font-bold text-cyan-300">ASTEROID SHOOTER</h1>
+            <div id="scoreContainer" class="text-xl md:text-2xl font-bold">Score: <span id="scoreEl">0</span></div>
         </div>
-    </div>
+        
+        <!-- The Game Canvas -->
+        <canvas id="gameCanvas"></canvas>
 
-    <!-- Message Box Overlay -->
-    <div id="messageOverlay" class="message-box-overlay">
-        <div class="message-box">
-            <h2 id="messageTitle"></h2>
-            <p id="messageContent"></p>
-            <button id="messageButton"></button>
+        <!-- Game Over Modal -->
+        <div id="gameOverModal">
+            <h2 class="text-4xl font-bold text-red-500">GAME OVER</h2>
+            <p class="text-2xl">Final Score: <span id="finalScoreEl">0</span></p>
+            <button id="restartButton">Restart Game</button>
         </div>
     </div>
 
     <script>
-        // Game configuration
-        const CANVAS_WIDTH = 800; // Reference width for game logic
-        const CANVAS_HEIGHT = 600; // Reference height for game logic
-        const PLAYER_SIZE = 60; // Size of the catcher
-        const PLAYER_SPEED = 10; // Speed of player movement
-        const FALLING_ITEM_SIZE = 40; // Size of falling emojis
-        const ITEM_INITIAL_SPEED = 2; // Initial falling speed
-        const ITEM_SPEED_INCREASE_INTERVAL = 10; // Increase speed every X score points
-        const ITEM_SPEED_INCREMENT = 0.5; // How much speed increases
-        const ITEM_SPAWN_RATE = 800; // Milliseconds between new emoji spawns
+        // --- DOM ELEMENT SELECTION ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('scoreEl');
+        const finalScoreEl = document.getElementById('finalScoreEl');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const restartButton = document.getElementById('restartButton');
 
-        // Emojis
-        const goodEmojis = ['⭐', '💖', '💰', '✨', '💎', '🍀', '🍓', '🍒'];
-        const badEmojis = ['💩', '💣', '💀', '💢', '⚡', '👺', '🔪', '🔥'];
-
-        // Game state variables
-        let canvas, ctx;
+        // --- GAME CONFIGURATION ---
         let score = 0;
-        let playerX = CANVAS_WIDTH / 2 - PLAYER_SIZE / 2;
-        let fallingItems = [];
-        let gameRunning = false;
-        let animationFrameId;
-        let lastSpawnTime = 0;
-        let currentItemSpeed = ITEM_INITIAL_SPEED;
-
-        // DOM elements
-        const scoreDisplay = document.getElementById('score');
-        const leftButton = document.getElementById('leftButton');
-        const rightButton = document.getElementById('rightButton');
-        const startButton = document.getElementById('startButton');
-        const messageOverlay = document.getElementById('messageOverlay');
-        const messageTitle = document.getElementById('messageTitle');
-        const messageContent = document.getElementById('messageContent');
-        const messageButton = document.getElementById('messageButton');
-
-        // --- Game Initialization ---
-        window.onload = function() {
-            canvas = document.getElementById('gameCanvas');
-            ctx = canvas.getContext('2d');
-            setupCanvasSize(); // Set initial canvas size
-            window.addEventListener('resize', setupCanvasSize); // Handle resizing
-
-            // Set up event listeners for controls
-            setupControls();
-
-            // Show initial instructions message
-            showMessage("Welcome!", "Catch the good emojis (like ⭐💖💰) and avoid the bad ones (like 💩💣💀). Use arrow keys or screen buttons to move. Get a score of -5 and it's game over!", "Start Game", startGame);
+        let gameRunning = true;
+        let animationId;
+        const keys = {
+            right: { pressed: false },
+            left: { pressed: false },
+            space: { pressed: false }
         };
 
-        // --- Canvas Sizing ---
-        function setupCanvasSize() {
-            // Get the parent container's dimensions
-            const parent = canvas.parentElement;
-            const parentWidth = parent.clientWidth - (parseInt(getComputedStyle(parent).paddingLeft) || 0) - (parseInt(getComputedStyle(parent).paddingRight) || 0);
-            const parentHeight = parent.clientHeight - (parseInt(getComputedStyle(parent).paddingTop) || 0) - (parseInt(getComputedStyle(parent).paddingBottom) || 0);
+        // --- INITIAL CANVAS SETUP ---
+        // Set canvas to fill its container width, and set a common aspect ratio
+        const aspectRatio = 16 / 9;
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = canvas.width / aspectRatio;
 
-            // Determine the maximum possible size while maintaining aspect ratio
-            const aspectRatio = CANVAS_WIDTH / CANVAS_HEIGHT;
-            let newWidth = parentWidth;
-            let newHeight = newWidth / aspectRatio;
-
-            if (newHeight > parentHeight) {
-                newHeight = parentHeight;
-                newWidth = newHeight * aspectRatio;
+            // Make sure height does not exceed window height
+            if (canvas.height > window.innerHeight * 0.75) {
+                canvas.height = window.innerHeight * 0.75;
+                canvas.width = canvas.height * aspectRatio;
             }
-
-            // Apply the new dimensions
-            canvas.width = newWidth;
-            canvas.height = newHeight;
-
-            // Adjust player position proportionally if canvas resized after game start
-            if (gameRunning) {
-                // Keep player centered horizontally relative to new canvas width
-                playerX = canvas.width / 2 - (PLAYER_SIZE * (canvas.width / CANVAS_WIDTH)) / 2;
-            } else {
-                // For initial setup or before game start, center the player
-                 playerX = (canvas.width / 2) - (PLAYER_SIZE * (canvas.width / CANVAS_WIDTH)) / 2;
-            }
-
-            // Redraw everything after resize to prevent visual glitches
-            drawGame();
         }
 
-        // --- Game Core Logic ---
-        function startGame() {
-            resetGame(); // Reset all game state
-            hideMessage(); // Hide any active message box
-            gameRunning = true;
-            startButton.textContent = "Restart Game"; // Change button text
-            lastSpawnTime = performance.now(); // Initialize spawn time
-            gameLoop(); // Start the main game loop
+        window.addEventListener('load', () => {
+             resizeCanvas();
+             init(); // Initialize the game state
+             animate(); // Start the game loop
+        });
+        window.addEventListener('resize', resizeCanvas);
+
+
+        // --- PLAYER CLASS ---
+        class Player {
+            constructor() {
+                this.speed = 7;
+                this.width = 50;
+                this.height = 30;
+                this.position = {
+                    x: canvas.width / 2 - this.width / 2,
+                    y: canvas.height - this.height - 20
+                };
+                this.velocity = { x: 0, y: 0 };
+                this.shootCooldown = 0;
+                this.isShooting = false;
+            }
+
+            draw() {
+                // Draws the player's spaceship as a triangle
+                ctx.fillStyle = 'cyan';
+                ctx.beginPath();
+                ctx.moveTo(this.position.x + this.width / 2, this.position.y);
+                ctx.lineTo(this.position.x, this.position.y + this.height);
+                ctx.lineTo(this.position.x + this.width, this.position.y + this.height);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.stroke();
+            }
+
+            update() {
+                // Update player position based on velocity
+                this.position.x += this.velocity.x;
+
+                // Enforce screen boundaries
+                if (this.position.x < 0) {
+                    this.position.x = 0;
+                } else if (this.position.x + this.width > canvas.width) {
+                    this.position.x = canvas.width - this.width;
+                }
+                
+                // Handle shooting
+                if(this.shootCooldown > 0) this.shootCooldown--;
+                if(this.isShooting && this.shootCooldown === 0) {
+                    bullets.push(new Bullet({
+                        position: { x: this.position.x + this.width / 2, y: this.position.y },
+                        velocity: { x: 0, y: -10 }
+                    }));
+                    this.shootCooldown = 15; // Cooldown frames between shots
+                }
+
+                this.draw();
+            }
         }
 
-        function resetGame() {
+        // --- BULLET CLASS ---
+        class Bullet {
+            constructor({ position, velocity }) {
+                this.position = position;
+                this.velocity = velocity;
+                this.width = 4;
+                this.height = 10;
+            }
+
+            draw() {
+                ctx.fillStyle = 'yellow';
+                ctx.fillRect(this.position.x - this.width/2, this.position.y, this.width, this.height);
+            }
+
+            update() {
+                this.position.y += this.velocity.y;
+                this.draw();
+            }
+        }
+        
+        // --- ASTEROID CLASS ---
+        class Asteroid {
+            constructor({ position, velocity, radius }) {
+                this.position = position;
+                this.velocity = velocity;
+                this.radius = radius;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#a0a0a0'; // Grey color for asteroids
+                ctx.fill();
+                ctx.strokeStyle = '#c0c0c0';
+                ctx.stroke();
+            }
+
+            update() {
+                this.position.x += this.velocity.x;
+                this.position.y += this.velocity.y;
+                this.draw();
+            }
+        }
+
+        // --- PARTICLE CLASS (for explosion effects) ---
+        class Particle {
+            constructor({ position, velocity, radius, color, fades }) {
+                this.position = position;
+                this.velocity = velocity;
+                this.radius = radius;
+                this.color = color;
+                this.opacity = 1;
+                this.fades = fades;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.beginPath();
+                ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+            
+            update() {
+                this.position.x += this.velocity.x;
+                this.position.y += this.velocity.y;
+                if(this.fades) this.opacity -= 0.02;
+                this.draw();
+            }
+        }
+
+
+        // --- GAME STATE VARIABLES ---
+        let player;
+        let bullets;
+        let asteroids;
+        let particles;
+        let frames;
+
+        // --- INITIALIZATION FUNCTION ---
+        function init() {
+            player = new Player();
+            bullets = [];
+            asteroids = [];
+            particles = [];
+            frames = 0;
             score = 0;
-            scoreDisplay.textContent = score;
-            playerX = canvas.width / 2 - (PLAYER_SIZE * (canvas.width / CANVAS_WIDTH)) / 2; // Recenter player
-            fallingItems = [];
-            currentItemSpeed = ITEM_INITIAL_SPEED;
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId); // Stop any existing loop
+            gameRunning = true;
+            scoreEl.textContent = 0;
+            gameOverModal.style.display = 'none';
+        }
+
+
+        // --- PARTICLE CREATION ---
+        function createParticles(asteroid) {
+            for(let i=0; i < 15; i++) {
+                particles.push(new Particle({
+                    position: { x: asteroid.position.x, y: asteroid.position.y },
+                    velocity: { 
+                        x: (Math.random() - 0.5) * 3, 
+                        y: (Math.random() - 0.5) * 3
+                    },
+                    radius: Math.random() * 3,
+                    color: '#a0a0a0',
+                    fades: true
+                }));
             }
         }
 
-        function gameOver() {
-            gameRunning = false;
-            cancelAnimationFrame(animationFrameId); // Stop the game loop
-            showMessage("Game Over!", `You scored: ${score}! Your score went below -5. Try again!`, "Play Again", startGame);
-        }
+        // --- THE MAIN GAME LOOP ---
+        function animate() {
+            if (!gameRunning) return;
 
-        function gameLoop(currentTime) {
-            if (!gameRunning) return; // Stop if game is not running
+            animationId = requestAnimationFrame(animate);
 
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Clear canvas with a space-like background
+            ctx.fillStyle = 'rgba(12, 10, 24, 0.3)'; // Semi-transparent for motion blur effect
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Spawn new falling items
-            if (currentTime - lastSpawnTime > ITEM_SPAWN_RATE) {
-                spawnFallingItem();
-                lastSpawnTime = currentTime;
-            }
+            // Update player
+            player.update();
 
-            // Update and draw falling items
-            for (let i = fallingItems.length - 1; i >= 0; i--) {
-                const item = fallingItems[i];
-                // Scale item speed and size proportionally to canvas size
-                item.y += currentItemSpeed * (canvas.height / CANVAS_HEIGHT);
-
-                // Draw item
-                ctx.font = `${FALLING_ITEM_SIZE * (canvas.width / CANVAS_WIDTH)}px Arial`;
-                ctx.fillText(item.emoji, item.x, item.y);
-
-                // Collision detection with player
-                // Scale player size and position for collision check
-                const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
-                const scaledItemSize = FALLING_ITEM_SIZE * (canvas.width / CANVAS_WIDTH);
-
-                if (item.y + scaledItemSize > canvas.height - scaledPlayerSize &&
-                    item.x < playerX + scaledPlayerSize &&
-                    item.x + scaledItemSize > playerX) {
-                    // Collision!
-                    if (item.type === 'good') {
-                        score += 1;
-                        // Increase speed gradually based on score
-                        if (score > 0 && score % ITEM_SPEED_INCREASE_INTERVAL === 0) {
-                            currentItemSpeed += ITEM_SPEED_INCREMENT;
-                        }
-                    } else {
-                        score -= 1;
-                    }
-                    scoreDisplay.textContent = score;
-                    fallingItems.splice(i, 1); // Remove caught item
-                }
-                // Check if item went off screen
-                else if (item.y > canvas.height) {
-                    fallingItems.splice(i, 1); // Remove off-screen item
-                }
-            }
-
-            // Draw player
-            drawPlayer();
-
-            // Check for game over condition
-            if (score < -4) { // Game over if score reaches -5
-                gameOver();
-            } else {
-                animationFrameId = requestAnimationFrame(gameLoop); // Continue the loop
-            }
-        }
-
-        // --- Drawing Functions ---
-        function drawGame() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-            drawPlayer();
-            // Draw existing falling items (useful for initial resize redraw)
-            fallingItems.forEach(item => {
-                ctx.font = `${FALLING_ITEM_SIZE * (canvas.width / CANVAS_WIDTH)}px Arial`;
-                ctx.fillText(item.emoji, item.x, item.y);
-            });
-        }
-
-        function drawPlayer() {
-            // Draw player as a simple rectangle with rounded corners
-            const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
-            ctx.fillStyle = '#3498db'; /* Blue catcher */
-            const borderRadius = 10 * (canvas.width / CANVAS_WIDTH); // Scaled border radius
-            roundRect(ctx, playerX, canvas.height - scaledPlayerSize, scaledPlayerSize, scaledPlayerSize / 2, borderRadius);
-            ctx.fill();
-
-            // Add a small shadow for depth
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 3;
-            ctx.shadowOffsetY = 3;
-            roundRect(ctx, playerX, canvas.height - scaledPlayerSize, scaledPlayerSize, scaledPlayerSize / 2, borderRadius);
-            ctx.fill();
-            ctx.shadowColor = 'transparent'; // Reset shadow
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-        }
-
-        // Helper function to draw a rounded rectangle
-        function roundRect(ctx, x, y, width, height, radius) {
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-            ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
-        }
-
-        // --- Falling Item Generation ---
-        function spawnFallingItem() {
-            const isGood = Math.random() < 0.7; // 70% chance of good emoji
-            const emojiList = isGood ? goodEmojis : badEmojis;
-            const randomEmoji = emojiList[Math.floor(Math.random() * emojiList.length)];
-            const scaledItemSize = FALLING_ITEM_SIZE * (canvas.width / CANVAS_WIDTH);
-            const xPos = Math.random() * (canvas.width - scaledItemSize);
-
-            fallingItems.push({
-                x: xPos,
-                y: -scaledItemSize, // Start above canvas
-                emoji: randomEmoji,
-                type: isGood ? 'good' : 'bad'
-            });
-        }
-
-        // --- Input Handling ---
-        function setupControls() {
-            // Keyboard controls
-            document.addEventListener('keydown', (e) => {
-                if (!gameRunning) return;
-                const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
-                if (e.key === 'ArrowLeft') {
-                    playerX = Math.max(0, playerX - scaledPlayerSpeed);
-                } else if (e.key === 'ArrowRight') {
-                    const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
-                    playerX = Math.min(canvas.width - scaledPlayerSize, playerX + scaledPlayerSpeed);
-                }
-                drawPlayer(); // Redraw player immediately
-            });
-
-            // Touch controls for on-screen buttons
-            leftButton.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
-                if (!gameRunning) return;
-                playerMoveInterval = setInterval(() => {
-                    const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
-                    playerX = Math.max(0, playerX - scaledPlayerSpeed);
-                    drawPlayer();
-                }, 30); // Adjust interval for smoother movement
-            });
-            leftButton.addEventListener('touchend', () => clearInterval(playerMoveInterval));
-            leftButton.addEventListener('touchcancel', () => clearInterval(playerMoveInterval)); // Handle touch interruption
-
-            rightButton.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                if (!gameRunning) return;
-                playerMoveInterval = setInterval(() => {
-                    const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
-                    const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
-                    playerX = Math.min(canvas.width - scaledPlayerSize, playerX + scaledPlayerSpeed);
-                    drawPlayer();
-                }, 30);
-            });
-            rightButton.addEventListener('touchend', () => clearInterval(playerMoveInterval));
-            rightButton.addEventListener('touchcancel', () => clearInterval(playerMoveInterval));
-
-            // Mouse events for buttons (for desktop compatibility)
-            leftButton.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                if (!gameRunning) return;
-                playerMoveInterval = setInterval(() => {
-                    const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
-                    playerX = Math.max(0, playerX - scaledPlayerSpeed);
-                    drawPlayer();
-                }, 30);
-            });
-            leftButton.addEventListener('mouseup', () => clearInterval(playerMoveInterval));
-            leftButton.addEventListener('mouseleave', () => clearInterval(playerMoveInterval));
-
-            rightButton.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                if (!gameRunning) return;
-                playerMoveInterval = setInterval(() => {
-                    const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
-                    const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
-                    playerX = Math.min(canvas.width - scaledPlayerSize, playerX + scaledPlayerSpeed);
-                    drawPlayer();
-                }, 30);
-            });
-            rightButton.addEventListener('mouseup', () => clearInterval(playerMoveInterval));
-            rightButton.addEventListener('mouseleave', () => clearInterval(playerMoveInterval));
-
-            startButton.addEventListener('click', () => {
-                if (!gameRunning) {
-                    startGame();
+            // Update particles and remove faded ones
+            particles.forEach((particle, i) => {
+                if (particle.opacity <= 0) {
+                    setTimeout(() => particles.splice(i, 1), 0);
                 } else {
-                    // Confirm restart if game is already running
-                    showMessage("Restart Game?", "Are you sure you want to restart? Your current score will be lost.", "Yes, Restart", startGame, true);
-                }
-            });
-        }
-
-        let playerMoveInterval; // Used for continuous movement with buttons
-
-        // --- Custom Message Box (replacing alert/confirm) ---
-        function showMessage(title, content, buttonText, buttonAction, isConfirm = false) {
-            messageTitle.textContent = title;
-            messageContent.textContent = content;
-            messageButton.textContent = buttonText;
-
-            // Clear previous event listener to prevent multiple calls
-            const oldButton = messageButton;
-            const newButton = oldButton.cloneNode(true);
-            oldButton.parentNode.replaceChild(newButton, oldButton);
-            document.getElementById('messageButton').addEventListener('click', () => {
-                buttonAction();
-                if (!isConfirm) { // Only hide if it's not a confirmation that needs to be manually cleared
-                    hideMessage();
+                    particle.update();
                 }
             });
 
-            messageOverlay.classList.add('visible');
+            // Update bullets and remove off-screen ones
+            bullets.forEach((bullet, index) => {
+                if (bullet.position.y + bullet.height < 0) {
+                    setTimeout(() => bullets.splice(index, 1), 0);
+                } else {
+                    bullet.update();
+                }
+            });
+
+            // Spawn asteroids periodically
+            if (frames % 60 === 0) { // Spawn every 60 frames (1 second)
+                const radius = Math.random() * (30 - 10) + 10;
+                asteroids.push(new Asteroid({
+                    position: {
+                        x: Math.random() * canvas.width,
+                        y: -radius
+                    },
+                    velocity: {
+                        x: (Math.random() - 0.5) * 2,
+                        y: Math.random() * 2 + 1
+                    },
+                    radius: radius
+                }));
+            }
+            
+            // Update asteroids and check for collisions
+            asteroids.forEach((asteroid, astIndex) => {
+                asteroid.update();
+
+                // Collision: Player vs Asteroid -> Game Over
+                const dist = Math.hypot(player.position.x + player.width / 2 - asteroid.position.x, player.position.y + player.height / 2 - asteroid.position.y);
+                if (dist - asteroid.radius - player.width/2 < 1) {
+                    endGame();
+                }
+
+                // Collision: Bullet vs Asteroid
+                bullets.forEach((bullet, bulIndex) => {
+                    const dist = Math.hypot(bullet.position.x - asteroid.position.x, bullet.position.y - asteroid.position.y);
+                    if (dist - asteroid.radius - bullet.width < 1) {
+                        
+                        // Increase score
+                        score += 100;
+                        scoreEl.textContent = score;
+
+                        // Create explosion
+                        createParticles(asteroid);
+
+                        // Safely remove asteroid and bullet
+                        setTimeout(() => {
+                            asteroids.splice(astIndex, 1);
+                            bullets.splice(bulIndex, 1);
+                        }, 0);
+                    }
+                });
+            });
+
+            // Player movement logic
+            if (keys.left.pressed && player.position.x > 0) {
+                player.velocity.x = -player.speed;
+            } else if (keys.right.pressed && player.position.x + player.width < canvas.width) {
+                player.velocity.x = player.speed;
+            } else {
+                player.velocity.x = 0;
+            }
+
+            frames++;
         }
 
-        function hideMessage() {
-            messageOverlay.classList.remove('visible');
+        // --- END GAME FUNCTION ---
+        function endGame() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            finalScoreEl.textContent = score;
+            gameOverModal.style.display = 'flex';
+            restartButton.style.display = 'block';
         }
 
+        // --- EVENT LISTENERS ---
+        // Keyboard controls
+        window.addEventListener('keydown', ({ key }) => {
+            if (!gameRunning) return;
+            switch (key) {
+                case 'ArrowLeft':
+                case 'a':
+                    keys.left.pressed = true;
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                    keys.right.pressed = true;
+                    break;
+                case ' ':
+                    player.isShooting = true;
+                    break;
+            }
+        });
+
+        window.addEventListener('keyup', ({ key }) => {
+            switch (key) {
+                case 'ArrowLeft':
+                case 'a':
+                    keys.left.pressed = false;
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                    keys.right.pressed = false;
+                    break;
+                case ' ':
+                    player.isShooting = false;
+                    break;
+            }
+        });
+
+        // Touch controls for mobile
+        let touchStartX = null;
+        let playerStartX = null;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            if (!gameRunning) return;
+            e.preventDefault();
+            player.isShooting = true; // Auto-shoot on touch
+            touchStartX = e.touches[0].clientX;
+            playerStartX = player.position.x;
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameRunning || touchStartX === null) return;
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const deltaX = touchX - touchStartX;
+            player.position.x = playerStartX + deltaX;
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            if (!gameRunning) return;
+            e.preventDefault();
+            player.isShooting = false;
+            touchStartX = null;
+        });
+
+
+        // Restart button
+        restartButton.addEventListener('click', () => {
+            init();
+            animate();
+        });
+        
     </script>
 </body>
 </html>
