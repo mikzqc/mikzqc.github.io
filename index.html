@@ -3,194 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Catch the Emojis!</title>
     <style>
-        /* Custom font for the display */
-        .font-orbitron {
-            font-family: 'Orbitron', sans-serif;
+        /* General Body Styling */
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+            font-family: 'Inter', sans-serif; /* Modern font for aesthetics */
+            background: linear-gradient(135deg, #2c3e50, #34495e); /* Dark gradient background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Full viewport height */
+            color: #ecf0f1; /* Light text color */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        /* Custom font for buttons */
-        .font-inter {
-            font-family: 'Inter', sans-serif;
+
+        /* Responsive Canvas Styling */
+        canvas {
+            background-color: #2c3e50; /* Darker background for game area */
+            display: block;
+            border-radius: 15px; /* Rounded corners for the game area */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 5px rgba(255, 255, 255, 0.1); /* Deep shadow with subtle border */
+            max-width: 95vw; /* Max width to fit most screens */
+            max-height: 80vh; /* Max height to fit most screens */
+            width: 100%; /* Will be set by JS, but useful as a fallback */
+            height: auto; /* Will be set by JS, but useful as a fallback */
         }
-        /* Prevents highlighting text on fast clicks */
-        .calculator-button {
-            user-select: none;
-            -webkit-user-select: none; /* For Safari */
-            -moz-user-select: none;    /* For Firefox */
-            -ms-user-select: none;     /* For Internet Explorer/Edge */
+
+        /* Game Container */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        /* Custom focus ring for accessibility */
-        .calculator-button:focus {
+
+        /* Header and Score Display */
+        h1 {
+            font-size: 2.8em; /* Larger title */
+            color: #ffeb3b; /* Vibrant yellow */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            margin-bottom: 10px;
+            font-weight: 700; /* Bold */
+            letter-spacing: 1px;
+        }
+
+        .score-display {
+            font-size: 1.8em; /* Larger score */
+            color: #a7f3d0; /* Light green */
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
+            border-radius: 10px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5); /* Inner shadow */
+        }
+
+        /* Control Buttons */
+        .controls {
+            display: flex;
+            gap: 15px; /* Space between buttons */
+            margin-top: 20px;
+        }
+
+        .control-button {
+            background: linear-gradient(145deg, #1abc9c, #16a085); /* Teal gradient */
+            color: white;
+            border: none;
+            border-radius: 10px; /* Rounded buttons */
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease; /* Smooth transitions for hover/active */
+            user-select: none; /* Prevent text selection on tap */
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+            outline: none; /* Remove focus outline */
+        }
+
+        .control-button:hover {
+            transform: translateY(-3px); /* Lift effect */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(145deg, #16a085, #1abc9c); /* Subtle gradient shift */
+        }
+
+        .control-button:active {
+            transform: translateY(1px); /* Press effect */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Restart button specific style */
+        .control-button.restart-button {
+            background: linear-gradient(145deg, #e74c3c, #c0392b); /* Red gradient */
+        }
+        .control-button.restart-button:hover {
+            background: linear-gradient(145deg, #c0392b, #e74c3c);
+        }
+
+        /* Game Over / Info Message Box */
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Dark overlay */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000; /* Ensure it's on top */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .message-box-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .message-box {
+            background: linear-gradient(145deg, #34495e, #2c3e50); /* Dark gradient */
+            color: #ecf0f1;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            max-width: 90vw;
+            width: 400px;
+            transform: translateY(-20px); /* Slight lift animation */
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .message-box-overlay.visible .message-box {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .message-box h2 {
+            font-size: 2.5em;
+            color: #ffeb3b;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .message-box p {
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            color: #bdc3c7;
+        }
+
+        .message-box button {
+            background: linear-gradient(145deg, #3498db, #2980b9); /* Blue gradient */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); /* A soft blue glow */
         }
+
+        .message-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(145deg, #2980b9, #3498db);
+        }
+
+        .message-box button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Font import for Inter */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     </style>
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen font-inter">
+<body>
 
-    <div class="w-full max-w-sm mx-auto bg-gray-800 rounded-2xl shadow-2xl p-4 space-y-4">
-        <!-- Calculator Display -->
-        <div class="bg-gray-900/50 rounded-lg p-4 text-right break-words">
-            <div id="expression" class="text-gray-400 text-xl h-7 font-orbitron"></div>
-            <div id="display" class="text-white text-5xl font-orbitron">0</div>
+    <div class="game-container">
+        <h1>Catch the Emojis!</h1>
+        <div class="score-display">Score: <span id="score">0</span></div>
+        <canvas id="gameCanvas"></canvas>
+        <div class="controls">
+            <button id="leftButton" class="control-button">👈 Left</button>
+            <button id="rightButton" class="control-button">👉 Right</button>
+            <button id="startButton" class="control-button restart-button">Start Game</button>
         </div>
+    </div>
 
-        <!-- Calculator Buttons -->
-        <div class="grid grid-cols-4 gap-3">
-            <!-- Row 1 -->
-            <button class="calculator-button bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="clear">AC</button>
-            <button class="calculator-button bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="backspace">DEL</button>
-            <button class="calculator-button bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="%">%</button>
-            <button class="calculator-button bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="/">÷</button>
-
-            <!-- Row 2 -->
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="7">7</button>
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="8">8</button>
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="9">9</button>
-            <button class="calculator-button bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="*">×</button>
-
-            <!-- Row 3 -->
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="4">4</button>
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="5">5</button>
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="6">6</button>
-            <button class="calculator-button bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="-">−</button>
-
-            <!-- Row 4 -->
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="1">1</button>
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="2">2</button>
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="3">3</button>
-            <button class="calculator-button bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="+">+</button>
-
-            <!-- Row 5 -->
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150 col-span-2" data-key="0">0</button>
-            <button class="calculator-button bg-gray-700 hover:bg-gray-600 active:bg-gray-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key=".">.</button>
-            <button class="calculator-button bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white p-4 text-2xl font-bold rounded-lg transition-all duration-150" data-key="=">=</button>
+    <!-- Message Box Overlay -->
+    <div id="messageOverlay" class="message-box-overlay">
+        <div class="message-box">
+            <h2 id="messageTitle"></h2>
+            <p id="messageContent"></p>
+            <button id="messageButton"></button>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const display = document.getElementById('display');
-            const expressionDiv = document.getElementById('expression');
-            const buttons = document.querySelectorAll('.calculator-button');
+        // Game configuration
+        const CANVAS_WIDTH = 800; // Reference width for game logic
+        const CANVAS_HEIGHT = 600; // Reference height for game logic
+        const PLAYER_SIZE = 60; // Size of the catcher
+        const PLAYER_SPEED = 10; // Speed of player movement
+        const FALLING_ITEM_SIZE = 40; // Size of falling emojis
+        const ITEM_INITIAL_SPEED = 2; // Initial falling speed
+        const ITEM_SPEED_INCREASE_INTERVAL = 10; // Increase speed every X score points
+        const ITEM_SPEED_INCREMENT = 0.5; // How much speed increases
+        const ITEM_SPAWN_RATE = 800; // Milliseconds between new emoji spawns
 
-            let currentInput = '0';
-            let expression = '';
-            let hasCalculated = false;
+        // Emojis
+        const goodEmojis = ['⭐', '💖', '💰', '✨', '💎', '🍀', '🍓', '🍒'];
+        const badEmojis = ['💩', '💣', '💀', '💢', '⚡', '👺', '🔪', '🔥'];
 
-            // Function to update the display
-            const updateDisplay = () => {
-                display.textContent = currentInput;
-                expressionDiv.textContent = expression.replace(/\*/g, '×').replace(/\//g, '÷');
-            };
+        // Game state variables
+        let canvas, ctx;
+        let score = 0;
+        let playerX = CANVAS_WIDTH / 2 - PLAYER_SIZE / 2;
+        let fallingItems = [];
+        let gameRunning = false;
+        let animationFrameId;
+        let lastSpawnTime = 0;
+        let currentItemSpeed = ITEM_INITIAL_SPEED;
 
-            // Function to handle button clicks
-            const handleInput = (key) => {
-                const isNumber = !isNaN(parseInt(key));
-                const isOperator = ['+', '-', '*', '/', '%'].includes(key);
-                
-                if (hasCalculated && !isOperator && key !== '=') {
-                    // Start a new calculation after '='
-                    currentInput = '0';
-                    expression = '';
-                    hasCalculated = false;
-                }
+        // DOM elements
+        const scoreDisplay = document.getElementById('score');
+        const leftButton = document.getElementById('leftButton');
+        const rightButton = document.getElementById('rightButton');
+        const startButton = document.getElementById('startButton');
+        const messageOverlay = document.getElementById('messageOverlay');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageContent = document.getElementById('messageContent');
+        const messageButton = document.getElementById('messageButton');
 
-                if (isNumber) {
-                    if (currentInput === '0' || hasCalculated) {
-                        currentInput = key;
-                        hasCalculated = false;
-                    } else {
-                        currentInput += key;
-                    }
-                } else if (key === '.') {
-                    // Prevent multiple decimal points in one number
-                    if (!currentInput.includes('.')) {
-                        currentInput += '.';
-                    }
-                } else if (isOperator) {
-                    if (currentInput === 'Error') return;
-                    // Append current input and operator to expression
-                    expression += currentInput + key;
-                    currentInput = '0';
-                    hasCalculated = false;
-                } else if (key === '=') {
-                    if(expression === '' && currentInput === '0') return;
-                    
-                    expression += currentInput;
-                    try {
-                        // Using a function to evaluate is safer than direct eval
-                        const result = new Function('return ' + expression.replace(/%/g, '/100*'))();
+        // --- Game Initialization ---
+        window.onload = function() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            setupCanvasSize(); // Set initial canvas size
+            window.addEventListener('resize', setupCanvasSize); // Handle resizing
 
-                        if (!isFinite(result)) {
-                           throw new Error("Division by zero");
+            // Set up event listeners for controls
+            setupControls();
+
+            // Show initial instructions message
+            showMessage("Welcome!", "Catch the good emojis (like ⭐💖💰) and avoid the bad ones (like 💩💣💀). Use arrow keys or screen buttons to move. Get a score of -5 and it's game over!", "Start Game", startGame);
+        };
+
+        // --- Canvas Sizing ---
+        function setupCanvasSize() {
+            // Get the parent container's dimensions
+            const parent = canvas.parentElement;
+            const parentWidth = parent.clientWidth - (parseInt(getComputedStyle(parent).paddingLeft) || 0) - (parseInt(getComputedStyle(parent).paddingRight) || 0);
+            const parentHeight = parent.clientHeight - (parseInt(getComputedStyle(parent).paddingTop) || 0) - (parseInt(getComputedStyle(parent).paddingBottom) || 0);
+
+            // Determine the maximum possible size while maintaining aspect ratio
+            const aspectRatio = CANVAS_WIDTH / CANVAS_HEIGHT;
+            let newWidth = parentWidth;
+            let newHeight = newWidth / aspectRatio;
+
+            if (newHeight > parentHeight) {
+                newHeight = parentHeight;
+                newWidth = newHeight * aspectRatio;
+            }
+
+            // Apply the new dimensions
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            // Adjust player position proportionally if canvas resized after game start
+            if (gameRunning) {
+                // Keep player centered horizontally relative to new canvas width
+                playerX = canvas.width / 2 - (PLAYER_SIZE * (canvas.width / CANVAS_WIDTH)) / 2;
+            } else {
+                // For initial setup or before game start, center the player
+                 playerX = (canvas.width / 2) - (PLAYER_SIZE * (canvas.width / CANVAS_WIDTH)) / 2;
+            }
+
+            // Redraw everything after resize to prevent visual glitches
+            drawGame();
+        }
+
+        // --- Game Core Logic ---
+        function startGame() {
+            resetGame(); // Reset all game state
+            hideMessage(); // Hide any active message box
+            gameRunning = true;
+            startButton.textContent = "Restart Game"; // Change button text
+            lastSpawnTime = performance.now(); // Initialize spawn time
+            gameLoop(); // Start the main game loop
+        }
+
+        function resetGame() {
+            score = 0;
+            scoreDisplay.textContent = score;
+            playerX = canvas.width / 2 - (PLAYER_SIZE * (canvas.width / CANVAS_WIDTH)) / 2; // Recenter player
+            fallingItems = [];
+            currentItemSpeed = ITEM_INITIAL_SPEED;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId); // Stop any existing loop
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(animationFrameId); // Stop the game loop
+            showMessage("Game Over!", `You scored: ${score}! Your score went below -5. Try again!`, "Play Again", startGame);
+        }
+
+        function gameLoop(currentTime) {
+            if (!gameRunning) return; // Stop if game is not running
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Spawn new falling items
+            if (currentTime - lastSpawnTime > ITEM_SPAWN_RATE) {
+                spawnFallingItem();
+                lastSpawnTime = currentTime;
+            }
+
+            // Update and draw falling items
+            for (let i = fallingItems.length - 1; i >= 0; i--) {
+                const item = fallingItems[i];
+                // Scale item speed and size proportionally to canvas size
+                item.y += currentItemSpeed * (canvas.height / CANVAS_HEIGHT);
+
+                // Draw item
+                ctx.font = `${FALLING_ITEM_SIZE * (canvas.width / CANVAS_WIDTH)}px Arial`;
+                ctx.fillText(item.emoji, item.x, item.y);
+
+                // Collision detection with player
+                // Scale player size and position for collision check
+                const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
+                const scaledItemSize = FALLING_ITEM_SIZE * (canvas.width / CANVAS_WIDTH);
+
+                if (item.y + scaledItemSize > canvas.height - scaledPlayerSize &&
+                    item.x < playerX + scaledPlayerSize &&
+                    item.x + scaledItemSize > playerX) {
+                    // Collision!
+                    if (item.type === 'good') {
+                        score += 1;
+                        // Increase speed gradually based on score
+                        if (score > 0 && score % ITEM_SPEED_INCREASE_INTERVAL === 0) {
+                            currentItemSpeed += ITEM_SPEED_INCREMENT;
                         }
-                        
-                        // Format result to a reasonable number of decimal places
-                        currentInput = parseFloat(result.toPrecision(12)).toString();
-                        expression += ' =';
-                        hasCalculated = true;
-
-                    } catch (error) {
-                        currentInput = 'Error';
-                        expression = '';
-                    }
-                } else if (key === 'clear') {
-                    currentInput = '0';
-                    expression = '';
-                    hasCalculated = false;
-                } else if (key === 'backspace') {
-                    if (currentInput === 'Error' || hasCalculated) {
-                        // If there's an error or after a calculation, backspace should clear
-                        currentInput = '0';
-                        expression = '';
-                        hasCalculated = false;
-                    } else if (currentInput.length > 1) {
-                        currentInput = currentInput.slice(0, -1);
                     } else {
-                        currentInput = '0';
+                        score -= 1;
                     }
+                    scoreDisplay.textContent = score;
+                    fallingItems.splice(i, 1); // Remove caught item
                 }
-                
-                updateDisplay();
-            };
+                // Check if item went off screen
+                else if (item.y > canvas.height) {
+                    fallingItems.splice(i, 1); // Remove off-screen item
+                }
+            }
 
-            // Add event listeners to all buttons
-            buttons.forEach(button => {
-                button.addEventListener('click', () => handleInput(button.dataset.key));
+            // Draw player
+            drawPlayer();
+
+            // Check for game over condition
+            if (score < -4) { // Game over if score reaches -5
+                gameOver();
+            } else {
+                animationFrameId = requestAnimationFrame(gameLoop); // Continue the loop
+            }
+        }
+
+        // --- Drawing Functions ---
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+            drawPlayer();
+            // Draw existing falling items (useful for initial resize redraw)
+            fallingItems.forEach(item => {
+                ctx.font = `${FALLING_ITEM_SIZE * (canvas.width / CANVAS_WIDTH)}px Arial`;
+                ctx.fillText(item.emoji, item.x, item.y);
+            });
+        }
+
+        function drawPlayer() {
+            // Draw player as a simple rectangle with rounded corners
+            const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
+            ctx.fillStyle = '#3498db'; /* Blue catcher */
+            const borderRadius = 10 * (canvas.width / CANVAS_WIDTH); // Scaled border radius
+            roundRect(ctx, playerX, canvas.height - scaledPlayerSize, scaledPlayerSize, scaledPlayerSize / 2, borderRadius);
+            ctx.fill();
+
+            // Add a small shadow for depth
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            roundRect(ctx, playerX, canvas.height - scaledPlayerSize, scaledPlayerSize, scaledPlayerSize / 2, borderRadius);
+            ctx.fill();
+            ctx.shadowColor = 'transparent'; // Reset shadow
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        // Helper function to draw a rounded rectangle
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // --- Falling Item Generation ---
+        function spawnFallingItem() {
+            const isGood = Math.random() < 0.7; // 70% chance of good emoji
+            const emojiList = isGood ? goodEmojis : badEmojis;
+            const randomEmoji = emojiList[Math.floor(Math.random() * emojiList.length)];
+            const scaledItemSize = FALLING_ITEM_SIZE * (canvas.width / CANVAS_WIDTH);
+            const xPos = Math.random() * (canvas.width - scaledItemSize);
+
+            fallingItems.push({
+                x: xPos,
+                y: -scaledItemSize, // Start above canvas
+                emoji: randomEmoji,
+                type: isGood ? 'good' : 'bad'
+            });
+        }
+
+        // --- Input Handling ---
+        function setupControls() {
+            // Keyboard controls
+            document.addEventListener('keydown', (e) => {
+                if (!gameRunning) return;
+                const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
+                if (e.key === 'ArrowLeft') {
+                    playerX = Math.max(0, playerX - scaledPlayerSpeed);
+                } else if (e.key === 'ArrowRight') {
+                    const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
+                    playerX = Math.min(canvas.width - scaledPlayerSize, playerX + scaledPlayerSpeed);
+                }
+                drawPlayer(); // Redraw player immediately
             });
 
-            // Add keyboard support
-            document.addEventListener('keydown', (event) => {
-                let key = event.key;
-                
-                // Map keyboard keys to calculator keys
-                if (key === 'Enter') key = '=';
-                if (key === 'Backspace') key = 'backspace';
-                if (key === 'Escape') key = 'clear';
-                if (key === 'x' || key === 'X') key = '*';
-                if (key === 'd' || key === '/') key = '/';
+            // Touch controls for on-screen buttons
+            leftButton.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+                if (!gameRunning) return;
+                playerMoveInterval = setInterval(() => {
+                    const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
+                    playerX = Math.max(0, playerX - scaledPlayerSpeed);
+                    drawPlayer();
+                }, 30); // Adjust interval for smoother movement
+            });
+            leftButton.addEventListener('touchend', () => clearInterval(playerMoveInterval));
+            leftButton.addEventListener('touchcancel', () => clearInterval(playerMoveInterval)); // Handle touch interruption
 
+            rightButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (!gameRunning) return;
+                playerMoveInterval = setInterval(() => {
+                    const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
+                    const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
+                    playerX = Math.min(canvas.width - scaledPlayerSize, playerX + scaledPlayerSpeed);
+                    drawPlayer();
+                }, 30);
+            });
+            rightButton.addEventListener('touchend', () => clearInterval(playerMoveInterval));
+            rightButton.addEventListener('touchcancel', () => clearInterval(playerMoveInterval));
 
-                const button = document.querySelector(`.calculator-button[data-key="${key}"]`);
-                if (button) {
-                    event.preventDefault(); // Prevent default browser actions
-                    button.click();
-                    // Add a visual feedback for key press
-                    button.classList.add('bg-gray-500');
-                    setTimeout(() => button.classList.remove('bg-gray-500'), 100);
+            // Mouse events for buttons (for desktop compatibility)
+            leftButton.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if (!gameRunning) return;
+                playerMoveInterval = setInterval(() => {
+                    const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
+                    playerX = Math.max(0, playerX - scaledPlayerSpeed);
+                    drawPlayer();
+                }, 30);
+            });
+            leftButton.addEventListener('mouseup', () => clearInterval(playerMoveInterval));
+            leftButton.addEventListener('mouseleave', () => clearInterval(playerMoveInterval));
+
+            rightButton.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if (!gameRunning) return;
+                playerMoveInterval = setInterval(() => {
+                    const scaledPlayerSpeed = PLAYER_SPEED * (canvas.width / CANVAS_WIDTH);
+                    const scaledPlayerSize = PLAYER_SIZE * (canvas.width / CANVAS_WIDTH);
+                    playerX = Math.min(canvas.width - scaledPlayerSize, playerX + scaledPlayerSpeed);
+                    drawPlayer();
+                }, 30);
+            });
+            rightButton.addEventListener('mouseup', () => clearInterval(playerMoveInterval));
+            rightButton.addEventListener('mouseleave', () => clearInterval(playerMoveInterval));
+
+            startButton.addEventListener('click', () => {
+                if (!gameRunning) {
+                    startGame();
+                } else {
+                    // Confirm restart if game is already running
+                    showMessage("Restart Game?", "Are you sure you want to restart? Your current score will be lost.", "Yes, Restart", startGame, true);
+                }
+            });
+        }
+
+        let playerMoveInterval; // Used for continuous movement with buttons
+
+        // --- Custom Message Box (replacing alert/confirm) ---
+        function showMessage(title, content, buttonText, buttonAction, isConfirm = false) {
+            messageTitle.textContent = title;
+            messageContent.textContent = content;
+            messageButton.textContent = buttonText;
+
+            // Clear previous event listener to prevent multiple calls
+            const oldButton = messageButton;
+            const newButton = oldButton.cloneNode(true);
+            oldButton.parentNode.replaceChild(newButton, oldButton);
+            document.getElementById('messageButton').addEventListener('click', () => {
+                buttonAction();
+                if (!isConfirm) { // Only hide if it's not a confirmation that needs to be manually cleared
+                    hideMessage();
                 }
             });
 
-            // Initialize the display
-            updateDisplay();
-        });
+            messageOverlay.classList.add('visible');
+        }
+
+        function hideMessage() {
+            messageOverlay.classList.remove('visible');
+        }
+
     </script>
-
 </body>
 </html>
