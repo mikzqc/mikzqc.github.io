@@ -3,476 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asteroid Shooter</title>
+    <title>Typing Speed Test</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles for the game */
         body {
-            font-family: 'Orbitron', sans-serif;
-            background-color: #0c0a18;
-            color: #e0e0e0;
-            overflow: hidden; /* Prevents scrollbars from appearing */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
+            font-family: 'Inter', sans-serif;
         }
-        canvas {
-            background-color: #000;
-            display: block;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(76, 209, 255, 0.5);
-            cursor: none; /* Hide cursor over game area */
+        .correct {
+            color: #4ade80; /* green-400 */
         }
-        .game-container {
-            width: 100%;
-            max-width: 800px; /* Max width of the game area */
-            margin: auto;
-            text-align: center;
+        .incorrect {
+            color: #f87171; /* red-400 */
+            text-decoration: underline;
         }
-        .ui-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background-color: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            margin-bottom: 1rem;
+        .cursor {
+            animation: blink 1s step-end infinite;
         }
-        #restartButton {
-            display: none; /* Hidden by default */
-            background: linear-gradient(145deg, #f97316, #ea580c);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 9999px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
-        }
-        #restartButton:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
-        }
-        #gameOverModal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(12, 10, 24, 0.85);
-            padding: 2rem 3rem;
-            border-radius: 1rem;
-            text-align: center;
-            color: white;
-            display: none; /* Initially hidden */
-            flex-direction: column;
-            gap: 1.5rem;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        @keyframes blink {
+            from, to {
+                border-left-color: transparent;
+            }
+            50% {
+                border-left-color: black;
+            }
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex items-center justify-center min-h-screen p-4">
 
-    <div class="game-container p-4">
-        <!-- UI Panel for Score and Title -->
-        <div class="ui-panel">
-            <h1 class="text-2xl md:text-3xl font-bold text-cyan-300">ASTEROID SHOOTER</h1>
-            <div id="scoreContainer" class="text-xl md:text-2xl font-bold">Score: <span id="scoreEl">0</span></div>
+    <div class="w-full max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-4 text-gray-900 dark:text-white">Typing Speed Test</h1>
+        <p class="text-center text-gray-600 dark:text-gray-400 mb-8">Type the paragraph below. Your speed and accuracy will be calculated.</p>
+
+        <!-- Stats Display -->
+        <div class="flex justify-center items-center space-x-6 md:space-x-12 mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <div class="text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Live WPM</p>
+                <p id="live-wpm" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">0</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Accuracy</p>
+                <p id="accuracy" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">100%</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Errors</p>
+                <p id="errors" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">0</p>
+            </div>
+        </div>
+
+        <!-- Paragraph to Type -->
+        <div id="paragraph-container" class="text-2xl leading-relaxed bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-4 select-none">
+            <p id="paragraph-to-type"></p>
+        </div>
+
+        <!-- Hidden Text Area for User Input -->
+        <textarea id="typing-input" class="w-full h-32 p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 opacity-0 absolute" spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
+
+        <!-- Results Modal -->
+        <div id="results-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 max-w-md w-full text-center">
+                <h2 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Test Complete!</h2>
+                <div class="grid grid-cols-2 gap-4 my-6">
+                    <div>
+                        <p class="text-lg text-gray-500 dark:text-gray-400">Final WPM</p>
+                        <p id="final-wpm" class="text-4xl font-bold text-indigo-600 dark:text-indigo-400">0</p>
+                    </div>
+                    <div>
+                        <p class="text-lg text-gray-500 dark:text-gray-400">Accuracy</p>
+                        <p id="final-accuracy" class="text-4xl font-bold text-indigo-600 dark:text-indigo-400">0%</p>
+                    </div>
+                     <div>
+                        <p class="text-lg text-gray-500 dark:text-gray-400">Errors</p>
+                        <p id="final-errors" class="text-4xl font-bold text-indigo-600 dark:text-indigo-400">0</p>
+                    </div>
+                     <div>
+                        <p class="text-lg text-gray-500 dark:text-gray-400">Time</p>
+                        <p id="final-time" class="text-4xl font-bold text-indigo-600 dark:text-indigo-400">0s</p>
+                    </div>
+                </div>
+                <button id="restart-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+                    Try Again
+                </button>
+            </div>
         </div>
         
-        <!-- The Game Canvas -->
-        <canvas id="gameCanvas"></canvas>
-
-        <!-- Game Over Modal -->
-        <div id="gameOverModal">
-            <h2 class="text-4xl font-bold text-red-500">GAME OVER</h2>
-            <p class="text-2xl">Final Score: <span id="finalScoreEl">0</span></p>
-            <button id="restartButton">Restart Game</button>
+        <div class="text-center mt-6">
+             <button id="reset-main-button" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-6 rounded-lg transition duration-300">
+                Restart
+            </button>
         </div>
+
     </div>
 
     <script>
-        // --- DOM ELEMENT SELECTION ---
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreEl = document.getElementById('scoreEl');
-        const finalScoreEl = document.getElementById('finalScoreEl');
-        const gameOverModal = document.getElementById('gameOverModal');
-        const restartButton = document.getElementById('restartButton');
+        // DOM Elements
+        const paragraphContainer = document.getElementById('paragraph-container');
+        const paragraphToTypeEl = document.getElementById('paragraph-to-type');
+        const typingInput = document.getElementById('typing-input');
+        const liveWpmEl = document.getElementById('live-wpm');
+        const accuracyEl = document.getElementById('accuracy');
+        const errorsEl = document.getElementById('errors');
+        const resultsModal = document.getElementById('results-modal');
+        const finalWpmEl = document.getElementById('final-wpm');
+        const finalAccuracyEl = document.getElementById('final-accuracy');
+        const finalErrorsEl = document.getElementById('final-errors');
+        const finalTimeEl = document.getElementById('final-time');
+        const restartButton = document.getElementById('restart-button');
+        const resetMainButton = document.getElementById('reset-main-button');
 
-        // --- GAME CONFIGURATION ---
-        let score = 0;
-        let gameRunning = true;
-        let animationId;
-        const keys = {
-            right: { pressed: false },
-            left: { pressed: false },
-            space: { pressed: false }
-        };
+        // Paragraphs for the test
+        const paragraphs = [
+            "The quick brown fox jumps over the lazy dog. This sentence contains all the letters of the alphabet. Learning to type quickly and accurately is a valuable skill in today's digital world. Practice regularly to improve your speed and reduce errors. Focus on maintaining a steady rhythm rather than rushing.",
+            "Technology has revolutionized the way we live and work. From smartphones to artificial intelligence, innovations continue to shape our daily lives. The internet connects billions of people worldwide, providing access to information and enabling global communication. Understanding these technologies is crucial for navigating the modern landscape.",
+            "The sun dipped below the horizon, painting the sky in hues of orange and purple. A gentle breeze rustled the leaves of the tall oak trees. In the distance, the city lights began to twinkle, creating a beautiful contrast with the fading daylight. It was a perfect evening to sit back and reflect on the day's events.",
+            "To be successful in any field, one must possess a combination of passion, perseverance, and a willingness to learn. Challenges are inevitable, but it is how we respond to them that defines our character. Embrace failure as a learning opportunity and never lose sight of your long-term goals. Consistency is the key to mastery."
+        ];
 
-        // --- INITIAL CANVAS SETUP ---
-        // Set canvas to fill its container width, and set a common aspect ratio
-        const aspectRatio = 16 / 9;
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth;
-            canvas.height = canvas.width / aspectRatio;
+        // Game State
+        let currentParagraph = '';
+        let startTime = null;
+        let intervalId = null;
+        let errorCount = 0;
+        let testInProgress = false;
 
-            // Make sure height does not exceed window height
-            if (canvas.height > window.innerHeight * 0.75) {
-                canvas.height = window.innerHeight * 0.75;
-                canvas.width = canvas.height * aspectRatio;
-            }
-        }
+        // --- Functions ---
 
-        window.addEventListener('load', () => {
-             resizeCanvas();
-             init(); // Initialize the game state
-             animate(); // Start the game loop
-        });
-        window.addEventListener('resize', resizeCanvas);
-
-
-        // --- PLAYER CLASS ---
-        class Player {
-            constructor() {
-                this.speed = 7;
-                this.width = 50;
-                this.height = 30;
-                this.position = {
-                    x: canvas.width / 2 - this.width / 2,
-                    y: canvas.height - this.height - 20
-                };
-                this.velocity = { x: 0, y: 0 };
-                this.shootCooldown = 0;
-                this.isShooting = false;
-            }
-
-            draw() {
-                // Draws the player's spaceship as a triangle
-                ctx.fillStyle = 'cyan';
-                ctx.beginPath();
-                ctx.moveTo(this.position.x + this.width / 2, this.position.y);
-                ctx.lineTo(this.position.x, this.position.y + this.height);
-                ctx.lineTo(this.position.x + this.width, this.position.y + this.height);
-                ctx.closePath();
-                ctx.fill();
-                ctx.strokeStyle = 'white';
-                ctx.stroke();
-            }
-
-            update() {
-                // Update player position based on velocity
-                this.position.x += this.velocity.x;
-
-                // Enforce screen boundaries
-                if (this.position.x < 0) {
-                    this.position.x = 0;
-                } else if (this.position.x + this.width > canvas.width) {
-                    this.position.x = canvas.width - this.width;
-                }
-                
-                // Handle shooting
-                if(this.shootCooldown > 0) this.shootCooldown--;
-                if(this.isShooting && this.shootCooldown === 0) {
-                    bullets.push(new Bullet({
-                        position: { x: this.position.x + this.width / 2, y: this.position.y },
-                        velocity: { x: 0, y: -10 }
-                    }));
-                    this.shootCooldown = 15; // Cooldown frames between shots
-                }
-
-                this.draw();
-            }
-        }
-
-        // --- BULLET CLASS ---
-        class Bullet {
-            constructor({ position, velocity }) {
-                this.position = position;
-                this.velocity = velocity;
-                this.width = 4;
-                this.height = 10;
-            }
-
-            draw() {
-                ctx.fillStyle = 'yellow';
-                ctx.fillRect(this.position.x - this.width/2, this.position.y, this.width, this.height);
-            }
-
-            update() {
-                this.position.y += this.velocity.y;
-                this.draw();
-            }
-        }
-        
-        // --- ASTEROID CLASS ---
-        class Asteroid {
-            constructor({ position, velocity, radius }) {
-                this.position = position;
-                this.velocity = velocity;
-                this.radius = radius;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#a0a0a0'; // Grey color for asteroids
-                ctx.fill();
-                ctx.strokeStyle = '#c0c0c0';
-                ctx.stroke();
-            }
-
-            update() {
-                this.position.x += this.velocity.x;
-                this.position.y += this.velocity.y;
-                this.draw();
-            }
-        }
-
-        // --- PARTICLE CLASS (for explosion effects) ---
-        class Particle {
-            constructor({ position, velocity, radius, color, fades }) {
-                this.position = position;
-                this.velocity = velocity;
-                this.radius = radius;
-                this.color = color;
-                this.opacity = 1;
-                this.fades = fades;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.opacity;
-                ctx.beginPath();
-                ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.restore();
+        /**
+         * Selects a random paragraph and initializes the test.
+         */
+        function startTest() {
+            // Reset all state variables
+            currentParagraph = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+            paragraphToTypeEl.innerHTML = '';
+            currentParagraph.split('').forEach(char => {
+                const span = document.createElement('span');
+                span.innerText = char;
+                paragraphToTypeEl.appendChild(span);
+            });
+            
+            // Add cursor to the first character
+            paragraphToTypeEl.children[0].classList.add('cursor');
+            
+            typingInput.value = '';
+            typingInput.focus();
+            
+            startTime = null;
+            testInProgress = false;
+            errorCount = 0;
+            
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
             }
             
-            update() {
-                this.position.x += this.velocity.x;
-                this.position.y += this.velocity.y;
-                if(this.fades) this.opacity -= 0.02;
-                this.draw();
-            }
-        }
-
-
-        // --- GAME STATE VARIABLES ---
-        let player;
-        let bullets;
-        let asteroids;
-        let particles;
-        let frames;
-
-        // --- INITIALIZATION FUNCTION ---
-        function init() {
-            player = new Player();
-            bullets = [];
-            asteroids = [];
-            particles = [];
-            frames = 0;
-            score = 0;
-            gameRunning = true;
-            scoreEl.textContent = 0;
-            gameOverModal.style.display = 'none';
-        }
-
-
-        // --- PARTICLE CREATION ---
-        function createParticles(asteroid) {
-            for(let i=0; i < 15; i++) {
-                particles.push(new Particle({
-                    position: { x: asteroid.position.x, y: asteroid.position.y },
-                    velocity: { 
-                        x: (Math.random() - 0.5) * 3, 
-                        y: (Math.random() - 0.5) * 3
-                    },
-                    radius: Math.random() * 3,
-                    color: '#a0a0a0',
-                    fades: true
-                }));
-            }
-        }
-
-        // --- THE MAIN GAME LOOP ---
-        function animate() {
-            if (!gameRunning) return;
-
-            animationId = requestAnimationFrame(animate);
-
-            // Clear canvas with a space-like background
-            ctx.fillStyle = 'rgba(12, 10, 24, 0.3)'; // Semi-transparent for motion blur effect
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Update player
-            player.update();
-
-            // Update particles and remove faded ones
-            particles.forEach((particle, i) => {
-                if (particle.opacity <= 0) {
-                    setTimeout(() => particles.splice(i, 1), 0);
-                } else {
-                    particle.update();
-                }
-            });
-
-            // Update bullets and remove off-screen ones
-            bullets.forEach((bullet, index) => {
-                if (bullet.position.y + bullet.height < 0) {
-                    setTimeout(() => bullets.splice(index, 1), 0);
-                } else {
-                    bullet.update();
-                }
-            });
-
-            // Spawn asteroids periodically
-            if (frames % 60 === 0) { // Spawn every 60 frames (1 second)
-                const radius = Math.random() * (30 - 10) + 10;
-                asteroids.push(new Asteroid({
-                    position: {
-                        x: Math.random() * canvas.width,
-                        y: -radius
-                    },
-                    velocity: {
-                        x: (Math.random() - 0.5) * 2,
-                        y: Math.random() * 2 + 1
-                    },
-                    radius: radius
-                }));
-            }
+            // Reset displays
+            liveWpmEl.textContent = '0';
+            accuracyEl.textContent = '100%';
+            errorsEl.textContent = '0';
             
-            // Update asteroids and check for collisions
-            asteroids.forEach((asteroid, astIndex) => {
-                asteroid.update();
+            resultsModal.classList.add('hidden');
+        }
 
-                // Collision: Player vs Asteroid -> Game Over
-                const dist = Math.hypot(player.position.x + player.width / 2 - asteroid.position.x, player.position.y + player.height / 2 - asteroid.position.y);
-                if (dist - asteroid.radius - player.width/2 < 1) {
-                    endGame();
+        /**
+         * Handles user input and updates the UI.
+         */
+        function handleInput() {
+            if (!testInProgress) {
+                testInProgress = true;
+                startTime = new Date();
+                // Start the interval to update live WPM
+                intervalId = setInterval(updateLiveStats, 1000);
+            }
+
+            const typedText = typingInput.value;
+            const typedChars = typedText.split('');
+            const paragraphChars = currentParagraph.split('');
+            let currentErrors = 0;
+            
+            // Remove cursor from all elements
+            Array.from(paragraphToTypeEl.children).forEach(span => span.classList.remove('cursor'));
+
+            // Compare typed text with the paragraph
+            Array.from(paragraphToTypeEl.children).forEach((charSpan, index) => {
+                const typedChar = typedChars[index];
+                const paragraphChar = charSpan.innerText;
+
+                if (typedChar == null) {
+                    charSpan.className = '';
+                } else if (typedChar === paragraphChar) {
+                    charSpan.className = 'correct';
+                } else {
+                    charSpan.className = 'incorrect';
+                    currentErrors++;
                 }
-
-                // Collision: Bullet vs Asteroid
-                bullets.forEach((bullet, bulIndex) => {
-                    const dist = Math.hypot(bullet.position.x - asteroid.position.x, bullet.position.y - asteroid.position.y);
-                    if (dist - asteroid.radius - bullet.width < 1) {
-                        
-                        // Increase score
-                        score += 100;
-                        scoreEl.textContent = score;
-
-                        // Create explosion
-                        createParticles(asteroid);
-
-                        // Safely remove asteroid and bullet
-                        setTimeout(() => {
-                            asteroids.splice(astIndex, 1);
-                            bullets.splice(bulIndex, 1);
-                        }, 0);
-                    }
-                });
             });
-
-            // Player movement logic
-            if (keys.left.pressed && player.position.x > 0) {
-                player.velocity.x = -player.speed;
-            } else if (keys.right.pressed && player.position.x + player.width < canvas.width) {
-                player.velocity.x = player.speed;
-            } else {
-                player.velocity.x = 0;
+            
+            // Add cursor to the next character to be typed
+            if (typedText.length < paragraphChars.length) {
+                paragraphToTypeEl.children[typedText.length].classList.add('cursor');
             }
 
-            frames++;
+            errorCount = currentErrors;
+            errorsEl.textContent = errorCount;
+            updateAccuracy(typedText.length);
+
+
+            // Check if the test is complete
+            if (typedText.length === currentParagraph.length) {
+                endTest();
+            }
         }
 
-        // --- END GAME FUNCTION ---
-        function endGame() {
-            gameRunning = false;
-            cancelAnimationFrame(animationId);
-            finalScoreEl.textContent = score;
-            gameOverModal.style.display = 'flex';
-            restartButton.style.display = 'block';
+        /**
+         * Updates the live WPM and accuracy displays.
+         */
+        function updateLiveStats() {
+            if (!startTime) return;
+
+            const currentTime = new Date();
+            const timeElapsed = (currentTime - startTime) / 1000 / 60; // in minutes
+            const typedCharsCount = typingInput.value.length;
+            
+            // WPM is calculated as (number of characters / 5) / time in minutes
+            const wpm = timeElapsed > 0 ? Math.round((typedCharsCount / 5) / timeElapsed) : 0;
+            liveWpmEl.textContent = wpm;
+        }
+        
+        /**
+         * Updates the accuracy display.
+         */
+        function updateAccuracy(typedLength) {
+            if (typedLength === 0) {
+                accuracyEl.textContent = '100%';
+                return;
+            }
+            const accuracy = Math.round(((typedLength - errorCount) / typedLength) * 100);
+            accuracyEl.textContent = `${Math.max(0, accuracy)}%`;
         }
 
-        // --- EVENT LISTENERS ---
-        // Keyboard controls
-        window.addEventListener('keydown', ({ key }) => {
-            if (!gameRunning) return;
-            switch (key) {
-                case 'ArrowLeft':
-                case 'a':
-                    keys.left.pressed = true;
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                    keys.right.pressed = true;
-                    break;
-                case ' ':
-                    player.isShooting = true;
-                    break;
-            }
-        });
+        /**
+         * Ends the test and displays the final results.
+         */
+        function endTest() {
+            clearInterval(intervalId);
+            intervalId = null;
+            testInProgress = false;
+            typingInput.blur(); // Remove focus from the textarea
 
-        window.addEventListener('keyup', ({ key }) => {
-            switch (key) {
-                case 'ArrowLeft':
-                case 'a':
-                    keys.left.pressed = false;
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                    keys.right.pressed = false;
-                    break;
-                case ' ':
-                    player.isShooting = false;
-                    break;
-            }
-        });
+            const endTime = new Date();
+            const timeTakenInSeconds = (endTime - startTime) / 1000;
+            const timeTakenInMinutes = timeTakenInSeconds / 60;
 
-        // Touch controls for mobile
-        let touchStartX = null;
-        let playerStartX = null;
+            const finalWPM = Math.round((currentParagraph.length / 5) / timeTakenInMinutes);
+            const finalAccuracy = Math.round(((currentParagraph.length - errorCount) / currentParagraph.length) * 100);
+
+            // Update the modal with final stats
+            finalWpmEl.textContent = finalWPM;
+            finalAccuracyEl.textContent = `${finalAccuracy}%`;
+            finalErrorsEl.textContent = errorCount;
+            finalTimeEl.textContent = `${timeTakenInSeconds.toFixed(1)}s`;
+
+            // Show the results modal
+            resultsModal.classList.remove('hidden');
+        }
         
-        canvas.addEventListener('touchstart', (e) => {
-            if (!gameRunning) return;
-            e.preventDefault();
-            player.isShooting = true; // Auto-shoot on touch
-            touchStartX = e.touches[0].clientX;
-            playerStartX = player.position.x;
-        }, { passive: false });
+        // --- Event Listeners ---
 
-        canvas.addEventListener('touchmove', (e) => {
-            if (!gameRunning || touchStartX === null) return;
-            e.preventDefault();
-            const touchX = e.touches[0].clientX;
-            const deltaX = touchX - touchStartX;
-            player.position.x = playerStartX + deltaX;
-        }, { passive: false });
-
-        canvas.addEventListener('touchend', (e) => {
-            if (!gameRunning) return;
-            e.preventDefault();
-            player.isShooting = false;
-            touchStartX = null;
-        });
-
-
-        // Restart button
-        restartButton.addEventListener('click', () => {
-            init();
-            animate();
-        });
+        // Listen for input on the textarea
+        typingInput.addEventListener('input', handleInput);
         
+        // Refocus on the textarea if the user clicks the paragraph
+        paragraphContainer.addEventListener('click', () => typingInput.focus());
+
+        // Restart the test when the button is clicked
+        restartButton.addEventListener('click', startTest);
+        resetMainButton.addEventListener('click', startTest);
+
+        // --- Initial Setup ---
+        
+        // Start the test for the first time
+        startTest();
     </script>
 </body>
 </html>
