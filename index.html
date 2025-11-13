@@ -16,12 +16,23 @@
     .mcq {margin-bottom:1.2rem; border-bottom:1px solid #eee; padding-bottom:1rem;}
     .options {margin-left:1.5rem;}
     details {margin-top:.5rem;}
+    .api-box {margin:1rem 0; padding:1rem; background:#f0f8ff; border-left:4px solid #007bff;}
   </style>
 </head>
 <body>
 
 <div class="container">
   <h1>CBSE Class-10 MCQ Generator</h1>
+
+  <div class="api-box">
+    <strong>OpenRouter Setup:</strong><br>
+    Get your <a href="https://openrouter.ai/keys" target="_blank">free API key</a> from OpenRouter.<br>
+    Paste it below and click "Save Key" (key is stored locally in your browser – safe & private).
+    <br><br>
+    <input type="password" id="apiKeyInput" placeholder="sk-or-..." style="width:70%; padding:.5rem;">
+    <button id="saveKeyBtn" style="margin-left:.5rem; padding:.5rem 1rem;">Save Key</button>
+    <p id="keyStatus" style="color:#28a745; font-size:.9rem;"></p>
+  </div>
 
   <div class="slider-box">
     <label for="lessonSlider">Select Lesson:</label><br>
@@ -39,9 +50,11 @@
 /* ------------------------------------------------------------------
    CONFIGURATION
    ------------------------------------------------------------------ */
-const API_URL = 'https://openrouter.ai/api/v1/chat/completions'; 
-const MODEL = 'deepseek/deepseek-r1:free'; // current free DeepSeek model  
   
+const API_URL = 'https://openrouter.ai/api/v1/chat/completions'; 
+const MODEL = 'deepseek/deepseek-r1:free'; // current free DeepSeek model
+
+
 const LESSONS = [
   null,
   'Real Numbers',
@@ -61,6 +74,33 @@ const LESSONS = [
 ];
 
 /* ------------------------------------------------------------------
+   API KEY MANAGEMENT
+   ------------------------------------------------------------------ */
+let DEEPSEEK_API_KEY = localStorage.getItem('openrouter_key') || '';
+
+const keyInput = document.getElementById('apiKeyInput');
+const saveBtn = document.getElementById('saveKeyBtn');
+const keyStatus = document.getElementById('keyStatus');
+
+if (DEEPSEEK_API_KEY) {
+  keyInput.value = DEEPSEEK_API_KEY;
+  keyStatus.textContent = 'Key loaded! Ready to generate.';
+}
+
+saveBtn.addEventListener('click', () => {
+  DEEPSEEK_API_KEY = keyInput.value.trim();
+  if (DEEPSEEK_API_KEY) {
+    localStorage.setItem('openrouter_key', DEEPSEEK_API_KEY);
+    keyStatus.textContent = 'Key saved! Ready to generate.';
+    keyInput.style.display = 'none';
+    saveBtn.style.display = 'none';
+  } else {
+    keyStatus.textContent = 'Enter a valid key.';
+    keyStatus.style.color = '#dc3545';
+  }
+});
+
+/* ------------------------------------------------------------------
    UI – slider label
    ------------------------------------------------------------------ */
 const slider   = document.getElementById('lessonSlider');
@@ -77,9 +117,14 @@ slider.addEventListener('input', updateLabel);
 updateLabel();
 
 /* ------------------------------------------------------------------
-   CORE – generate 50 MCQs (chunked)
+   CORE – generate 50 MCQs (chunked) – FIXED FOR OPENROUTER
    ------------------------------------------------------------------ */
 async function generateMCQs() {
+  if (!DEEPSEEK_API_KEY) {
+    status.textContent = 'Error: Add your OpenRouter API key first!';
+    return;
+  }
+
   const lessonIdx = slider.value;
   const lessonName = LESSONS[lessonIdx];
   const PER_REQUEST = 10;
@@ -112,14 +157,16 @@ Return **only** a JSON array with objects:
 No extra text, no markdown fences.`;
 
     try {
-      const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      const resp = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'HTTP-Referer': window.location.origin,  // Optional: For leaderboards
+          'X-Title': 'CBSE MCQ Generator'          // Optional: App name
         },
         body: JSON.stringify({
-          model: DEEPSEEK_MODEL,
+          model: MODEL,
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.8,
           max_tokens: 2500
