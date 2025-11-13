@@ -42,15 +42,13 @@
          CONFIGURATION (change only if you know what you are doing)
          -------------------------------------------------------------- -->
     <script>
-        /* ---------- 1. Choose provider ---------- */
-        // ----- OpenRouter (free tier works) -----
-        const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-        const MODEL   = 'deepseek/deepseek-r1:free'; // DeepSeek-V3-0324 via OpenRouter
+        
+    // ----- OpenRouter (RECOMMENDED FOR FREE) -----
+    const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+    const MODEL   = 'deepseek/deepseek-r1:free';  // ← THIS IS THE FIX
 
-        // ----- Direct DeepSeek (requires paid key) -----
-        // const API_URL = 'https://api.deepseek.com/v1/chat/completions';
-        // const MODEL   = 'deepseek-chat';   // or 'deepseek-v3-0324' if available
-
+    // Rest of your code stays the same...
+        
         /* ---------- 2. Chapter list ---------- */
         const chapters = [
             "1: Real Numbers",
