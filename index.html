@@ -5,44 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CBSE Class 10 Maths MCQ Generator</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        #chapter-slider {
-            width: 100%;
-        }
-        #questions {
-            margin-top: 20px;
-        }
-        .mcq {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .options {
-            margin-left: 20px;
-        }
+        body {font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.5;}
+        h1 {text-align: center;}
+        label {display: block; margin-top: 15px; font-weight: bold;}
+        input[type=text], input[type=range] {width: 100%; padding: 8px; margin-top: 5px;}
+        button {margin-top: 15px; padding: 10px 20px; font-size: 1rem;}
+        #questions {margin-top: 25px;}
+        .mcq {background:#f9f9f9; border:1px solid #ddd; border-radius:5px; padding:12px; margin-bottom:12px;}
+        .options {margin-left:20px;}
+        .correct {color:green; font-weight:bold;}
+        .loading {color:#555; font-style:italic;}
     </style>
 </head>
 <body>
     <h1>CBSE Class 10 Maths MCQ Generator</h1>
-    <p>This tool uses the DeepSeek AI model to generate multiple-choice questions for CBSE Class 10 Mathematics. Select a chapter using the slider, enter your DeepSeek API key (obtain from https://platform.deepseek.com/), and click Generate to get 5 new MCQs. Questions will vary each time due to the AI's non-deterministic nature.</p>
-    
-    <label for="api-key">DeepSeek API Key:</label>
-    <input type="text" id="api-key" placeholder="Enter your API key" style="width: 100%; margin-bottom: 10px;">
-    
-    <label for="chapter-slider">Select Chapter: <span id="chapter-name">Chapter 1: Real Numbers</span></label>
-    <input type="range" id="chapter-slider" min="1" max="14" value="1" step="1">
-    
+
+    <p>
+        <strong>Step 1:</strong> Get a free API key from 
+        <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a> (sign-up → API Keys).<br>
+        <strong>Step 2:</strong> Paste it below and click <em>Generate MCQs</em>.
+    </p>
+
+    <label for="api-key">OpenRouter API Key:</label>
+    <input type="password" id="api-key" placeholder="sk-or-...">
+
+    <label for="chapter-slider">
+        Chapter: <span id="chapter-name">Chapter 1: Real Numbers</span>
+    </label>
+    <input type="range" id="chapter-slider" min="1" max="14" value="1">
+
     <button id="generate-btn">Generate MCQs</button>
-    
+
     <div id="questions"></div>
 
+    <!-- --------------------------------------------------------------
+         CONFIGURATION (change only if you know what you are doing)
+         -------------------------------------------------------------- -->
     <script>
+        /* ---------- 1. Choose provider ---------- */
+        // ----- OpenRouter (free tier works) -----
+        const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+        const MODEL   = 'deepseek/deepseek-chat:free';   // DeepSeek-V3-0324 via OpenRouter
+
+        // ----- Direct DeepSeek (requires paid key) -----
+        // const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+        // const MODEL   = 'deepseek-chat';   // or 'deepseek-v3-0324' if available
+
+        /* ---------- 2. Chapter list ---------- */
         const chapters = [
             "1: Real Numbers",
             "2: Polynomials",
@@ -60,73 +69,130 @@
             "14: Probability"
         ];
 
-        const slider = document.getElementById('chapter-slider');
+        /* ---------- 3. UI elements ---------- */
+        const slider      = document.getElementById('chapter-slider');
         const chapterName = document.getElementById('chapter-name');
-        const apiKeyInput = document.getElementById('api-key');
-        const generateBtn = document.getElementById('generate-btn');
-        const questionsDiv = document.getElementById('questions');
+        const apiKeyInp   = document.getElementById('api-key');
+        const btn         = document.getElementById('generate-btn');
+        const outDiv      = document.getElementById('questions');
 
-        // Update chapter name on slider change
         slider.addEventListener('input', () => {
-            chapterName.textContent = `Chapter ${chapters[slider.value - 1]}`;
+            chapterName.textContent = `Chapter ${chapters[slider.value-1]}`;
         });
 
-        // Generate MCQs
-        generateBtn.addEventListener('click', async () => {
-            const apiKey = apiKeyInput.value.trim();
-            if (!apiKey) {
-                alert('Please enter your DeepSeek API key.');
-                return;
-            }
+        /* ---------- 4. Prompt template ---------- */
+        function buildPrompt(chapter) {
+            return `You are an expert CBSE Class 10 Mathematics teacher.
+Generate **5 brand-new** multiple-choice questions for **${chapter}**.
+Rules:
+- Exactly 4 options (A, B, C, D).
+- One correct answer.
+- After each question write: **Correct: X** (X = A/B/C/D).
+- Separate questions with a blank line.
+- Keep language simple and aligned with the NCERT textbook.
 
-            const chapter = chapters[slider.value - 1];
-            questionsDiv.innerHTML = '<p>Generating questions...</p>';
+Example format for ONE question:
+Question: What is the HCF of 12 and 18?
+Options:
+A) 3   B) 6   C) 9   D) 12
+Correct: B`;
+        }
+
+        /* ---------- 5. API call ---------- */
+        async function generate() {
+            const apiKey = apiKeyInp.value.trim();
+            if (!apiKey) return alert('Please paste your OpenRouter API key.');
+
+            const chapter = chapters[slider.value-1];
+            outDiv.innerHTML = '<p class="loading">Contacting DeepSeek-V3-0324 …</p>';
+            btn.disabled = true;
 
             try {
-                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                const resp = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
+                        'Authorization': `Bearer ${apiKey}`,
+                        // OpenRouter needs this header to pick the right model
+                        'HTTP-Referer': location.href,
+                        'X-Title': 'CBSE MCQ Generator'
                     },
                     body: JSON.stringify({
-                        model: 'deepseek-chat', // Using deepseek-chat as it's general-purpose; adjust if needed
+                        model: MODEL,
                         messages: [
-                            {
-                                role: 'system',
-                                content: 'You are an expert in CBSE Class 10 Mathematics. Generate 5 multiple-choice questions with 4 options each and indicate the correct answer.'
-                            },
-                            {
-                                role: 'user',
-                                content: `Generate 5 new MCQs for CBSE Class 10 Maths - ${chapter}. Each question should have 4 options (A, B, C, D) and specify the correct answer at the end. Format each MCQ as: Question: [question] Options: A) [opt] B) [opt] C) [opt] D) [opt] Correct: [letter]`
-                            }
+                            { role: 'system', content: 'You are a helpful CBSE Maths teacher.' },
+                            { role: 'user',   content: buildPrompt(`Chapter ${chapter}`) }
                         ],
-                        temperature: 0.8, // To introduce some variety
-                        max_tokens: 1500,
+                        temperature: 0.9,   // variety → new questions every time
+                        max_tokens: 1600,
                         stream: false
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.statusText}`);
+                if (!resp.ok) {
+                    const txt = await resp.text();
+                    throw new Error(`HTTP ${resp.status} – ${txt}`);
                 }
 
-                const data = await response.json();
-                const generatedText = data.choices[0].message.content;
+                const data = await resp.json();
+                const text = data.choices[0].message.content.trim();
 
-                // Parse and display the MCQs
-                questionsDiv.innerHTML = '';
-                const mcqs = generatedText.split('\n\n'); // Assuming each MCQ is separated by blank line
-                mcqs.forEach(mcq => {
-                    const div = document.createElement('div');
-                    div.classList.add('mcq');
-                    div.innerHTML = mcq.replace(/\n/g, '<br>');
-                    questionsDiv.appendChild(div);
-                });
-            } catch (error) {
-                questionsDiv.innerHTML = `<p>Error: ${error.message}. Please check your API key and try again.</p>`;
+                renderMCQs(text);
+            } catch (e) {
+                outDiv.innerHTML = `<p style="color:red;">Error: ${e.message}</p>`;
+                console.error(e);
+            } finally {
+                btn.disabled = false;
             }
-        });
+        }
+
+        /* ---------- 6. Render MCQs ---------- */
+        function renderMCQs(raw) {
+            outDiv.innerHTML = '';
+            const blocks = raw.split('\n\n').filter(b => b.trim());
+
+            blocks.forEach(block => {
+                const lines = block.trim().split('\n');
+                const mcqDiv = document.createElement('div');
+                mcqDiv.className = 'mcq';
+
+                let html = '';
+                let inOptions = false;
+                let correct = '';
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (!line) return;
+
+                    if (line.toLowerCase().startsWith('question:')) {
+                        html += `<strong>${line}</strong><br>`;
+                        inOptions = false;
+                    }
+                    else if (line.toLowerCase().startsWith('options:')) {
+                        html += `<strong>Options:</strong><br>`;
+                        inOptions = true;
+                    }
+                    else if (line.toLowerCase().startsWith('correct:')) {
+                        correct = line.split(':')[1].trim();
+                    }
+                    else if (inOptions) {
+                        html += `<div class="options">${line}</div>`;
+                    }
+                    else {
+                        html += `${line}<br>`;
+                    }
+                });
+
+                if (correct) {
+                    html += `<p class="correct">Correct answer: ${correct}</p>`;
+                }
+
+                mcqDiv.innerHTML = html;
+                outDiv.appendChild(mcqDiv);
+            });
+        }
+
+        btn.addEventListener('click', generate);
     </script>
 </body>
 </html>
