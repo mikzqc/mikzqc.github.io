@@ -1,234 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CBSE Class-10 MCQ Generator (DeepSeek V3)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Percentage Calculator</title>
   <style>
-    body {font-family: Arial, sans-serif; margin: 2rem; background:#f9f9f9;}
-    h1 {text-align:center;}
-    .container {max-width:900px; margin:auto; background:#fff; padding:1.5rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1);}
-    .slider-box {margin:1.5rem 0;}
-    #lessonLabel {font-weight:bold; font-size:1.2rem;}
-    #mcqOutput {margin-top:2rem; line-height:1.6;}
-    button {padding:.6rem 1.2rem; font-size:1rem; cursor:pointer;}
-    .loading {color:#555; font-style:italic;}
-    .mcq {margin-bottom:1.2rem; border-bottom:1px solid #eee; padding-bottom:1rem;}
-    .options {margin-left:1.5rem;}
-    details {margin-top:.5rem;}
-    .api-box {margin:1rem 0; padding:1rem; background:#f0f8ff; border-left:4px solid #007bff;}
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .calculator {
+      max-width: 400px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
+  <div class="calculator">
+    <h2>Percentage Calculator</h2>
 
-<div class="container">
-  <h1>CBSE Class-10 MCQ Generator</h1>
+    <!-- Exact order as requested -->
+    <label>English (out of 80)</label>
+    <input type="number" id="english" min="0" max="80" />
 
-  <div class="api-box">
-    <strong>OpenRouter Setup:</strong><br>
-    Get your <a href="https://openrouter.ai/keys" target="_blank">free API key</a> from OpenRouter.<br>
-    Paste it below and click "Save Key" (key is stored locally in your browser – safe & private).
-    <br><br>
-    <input type="password" id="apiKeyInput" placeholder="sk-or-..." style="width:70%; padding:.5rem;">
-    <button id="saveKeyBtn" style="margin-left:.5rem; padding:.5rem 1rem;">Save Key</button>
-    <p id="keyStatus" style="color:#28a745; font-size:.9rem;"></p>
+    <label>French (out of 80)</label>
+    <input type="number" id="french" min="0" max="80" />
+
+    <label>Maths (out of 80)</label>
+    <input type="number" id="maths" min="0" max="80" />
+
+    <label>Science (out of 80)</label>
+    <input type="number" id="science" min="0" max="80" />
+
+    <label>Social Science (out of 80)</label>
+    <input type="number" id="social" min="0" max="80" />
+
+    <label>Information Technology (out of 80)</label>
+    <input type="number" id="it" min="0" max="80" />
+
+    <button onclick="calculatePercentage()">Calculate Percentage</button>
+
+    <div class="result" id="result"></div>
   </div>
 
-  <div class="slider-box">
-    <label for="lessonSlider">Select Lesson:</label><br>
-    <input type="range" id="lessonSlider" min="1" max="14" value="1" step="1" style="width:100%;">
-    <div id="lessonLabel">Lesson 1 – Real Numbers</div>
-  </div>
+  <script>
+    function calculatePercentage() {
+      const english = Number(document.getElementById('english').value) || 0;
+      const french = Number(document.getElementById('french').value) || 0;
+      const maths = Number(document.getElementById('maths').value) || 0;
+      const science = Number(document.getElementById('science').value) || 0;
+      const social = Number(document.getElementById('social').value) || 0;
+      const it = Number(document.getElementById('it').value) || 0;
 
-  <button id="generateBtn">Generate 50 Fresh MCQs</button>
-  <p class="loading" id="status"></p>
+      const totalMarks = english + french + maths + science + social + it;
+      const maxMarks = 80 * 6;
 
-  <div id="mcqOutput"></div>
-</div>
+      const percentage = (totalMarks / maxMarks) * 100;
 
-<script>
-/* ------------------------------------------------------------------
-   CONFIGURATION
-   ------------------------------------------------------------------ */
-  
-const API_URL = 'https://openrouter.ai/api/v1/chat/completions'; 
-const MODEL = 'deepseek/deepseek-r1:free'; // current free DeepSeek model
-
-
-const LESSONS = [
-  null,
-  'Real Numbers',
-  'Polynomials',
-  'Pair of Linear Equations in Two Variables',
-  'Quadratic Equations',
-  'Arithmetic Progressions',
-  'Triangles',
-  'Coordinate Geometry',
-  'Introduction to Trigonometry',
-  'Some Applications of Trigonometry',
-  'Circles',
-  'Areas Related to Circles',
-  'Surface Areas and Volumes',
-  'Probability',          // Lesson 13
-  'Statistics'            // Lesson 14
-];
-
-/* ------------------------------------------------------------------
-   API KEY MANAGEMENT
-   ------------------------------------------------------------------ */
-let DEEPSEEK_API_KEY = localStorage.getItem('openrouter_key') || '';
-
-const keyInput = document.getElementById('apiKeyInput');
-const saveBtn = document.getElementById('saveKeyBtn');
-const keyStatus = document.getElementById('keyStatus');
-
-if (DEEPSEEK_API_KEY) {
-  keyInput.value = DEEPSEEK_API_KEY;
-  keyStatus.textContent = 'Key loaded! Ready to generate.';
-}
-
-saveBtn.addEventListener('click', () => {
-  DEEPSEEK_API_KEY = keyInput.value.trim();
-  if (DEEPSEEK_API_KEY) {
-    localStorage.setItem('openrouter_key', DEEPSEEK_API_KEY);
-    keyStatus.textContent = 'Key saved! Ready to generate.';
-    keyInput.style.display = 'none';
-    saveBtn.style.display = 'none';
-  } else {
-    keyStatus.textContent = 'Enter a valid key.';
-    keyStatus.style.color = '#dc3545';
-  }
-});
-
-/* ------------------------------------------------------------------
-   UI – slider label
-   ------------------------------------------------------------------ */
-const slider   = document.getElementById('lessonSlider');
-const label    = document.getElementById('lessonLabel');
-const status   = document.getElementById('status');
-const output   = document.getElementById('mcqOutput');
-const genBtn   = document.getElementById('generateBtn');
-
-function updateLabel() {
-  const idx = slider.value;
-  label.textContent = `Lesson ${idx} – ${LESSONS[idx]}`;
-}
-slider.addEventListener('input', updateLabel);
-updateLabel();
-
-/* ------------------------------------------------------------------
-   CORE – generate 50 MCQs (chunked) – FIXED FOR OPENROUTER
-   ------------------------------------------------------------------ */
-async function generateMCQs() {
-  if (!DEEPSEEK_API_KEY) {
-    status.textContent = 'Error: Add your OpenRouter API key first!';
-    return;
-  }
-
-  const lessonIdx = slider.value;
-  const lessonName = LESSONS[lessonIdx];
-  const PER_REQUEST = 10;
-  const TOTAL       = 50;
-  const calls       = Math.ceil(TOTAL / PER_REQUEST);
-
-  genBtn.disabled = true;
-  status.textContent = `Generating 0/${TOTAL} …`;
-  output.innerHTML = '';
-
-  const allQs = [];
-
-  for (let i = 0; i < calls; i++) {
-    const num = (i === calls - 1) ? TOTAL - allQs.length : PER_REQUEST;
-    const start = allQs.length + 1;
-
-    const prompt = `You are a CBSE Class-10 expert. Create **${num} brand-new multiple-choice questions** 
-(starting from question ${start}) on **${lessonName}**. Each question must have:
-- 4 options (A,B,C,D)
-- exactly one correct answer
-- a short explanation
-
-Return **only** a JSON array with objects:
-{
-  "q": "question text",
-  "options": ["A) …","B) …","C) …","D) …"],
-  "answer": "A" | "B" | "C" | "D",
-  "explanation": "brief reason"
-}
-No extra text, no markdown fences.`;
-
-    try {
-      const resp = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,  // Optional: For leaderboards
-          'X-Title': 'CBSE MCQ Generator'          // Optional: App name
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.8,
-          max_tokens: 2500
-        })
-      });
-
-      if (!resp.ok) {
-        const err = await resp.json();
-        throw new Error(err.error?.message || `HTTP ${resp.status}`);
-      }
-
-      const data = await resp.json();
-      const raw = data.choices[0].message.content.trim();
-
-      let chunk;
-      try {
-        const cleaned = raw.replace(/^```json\s*|```$/g, '').trim();
-        chunk = JSON.parse(cleaned);
-      } catch (e) {
-        console.warn('Raw chunk:', raw);
-        throw new Error('Invalid JSON from model');
-      }
-
-      allQs.push(...chunk);
-      status.textContent = `Generating ${allQs.length}/${TOTAL} …`;
-
-    } catch (err) {
-      status.textContent = 'Error: ' + err.message;
-      console.error(err);
-      genBtn.disabled = false;
-      return;
+      document.getElementById('result').innerText =
+        `Total: ${totalMarks} / ${maxMarks} | Percentage: ${percentage.toFixed(2)}%`;
     }
-  }
-
-  renderMCQs(allQs);
-  status.textContent = `Done! ${TOTAL} MCQs ready.`;
-  genBtn.disabled = false;
-}
-
-/* ------------------------------------------------------------------
-   Render
-   ------------------------------------------------------------------ */
-function renderMCQs(qs) {
-  output.innerHTML = qs.map((q, i) => `
-    <div class="mcq">
-      <strong>${i+1}.</strong> ${q.q}<br>
-      <div class="options">
-        ${q.options.map(opt => `<div>${opt}</div>`).join('')}
-      </div>
-      <details><summary><small>Show answer</small></summary>
-        <p><strong>Answer:</strong> ${q.answer}<br>
-           <strong>Explanation:</strong> ${q.explanation}</p>
-      </details>
-    </div>
-  `).join('');
-}
-
-/* ------------------------------------------------------------------
-   Button
-   ------------------------------------------------------------------ */
-genBtn.addEventListener('click', generateMCQs);
-</script>
-
+  </script>
 </body>
 </html>
