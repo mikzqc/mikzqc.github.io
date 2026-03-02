@@ -1,113 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Percentage & Grade Calculator (CBSE)</title>
-  <style>
+<meta charset="UTF-8">
+<title>CBSE Percentage & Grade Calculator</title>
+<style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #f2f2f2;
     }
-    .calculator {
-      max-width: 420px;
-      margin: auto;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    .container {
+        width: 400px;
+        margin: 60px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     h2 {
-      text-align: center;
+        text-align: center;
     }
     label {
-      display: block;
-      margin-top: 10px;
+        display: block;
+        margin-top: 10px;
     }
     input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+        width: 100%;
+        padding: 6px;
+        margin-top: 4px;
+    }
+    .options {
+        margin-top: 15px;
     }
     button {
-      width: 100%;
-      margin-top: 15px;
-      padding: 10px;
-      font-size: 16px;
-      cursor: pointer;
+        width: 100%;
+        padding: 10px;
+        margin-top: 15px;
+        font-size: 16px;
     }
     .result {
-      margin-top: 15px;
-      font-weight: bold;
-      text-align: center;
+        margin-top: 15px;
+        text-align: center;
+        font-weight: bold;
     }
-    .grade {
-      margin-top: 5px;
-      text-align: center;
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="calculator">
+<div class="container">
     <h2>CBSE Percentage & Grade Calculator</h2>
 
-    <!-- Exact order as requested -->
     <label>English (out of 100)</label>
-    <input type="number" id="english" min="0" max="100" />
+    <input type="number" id="english">
 
     <label>French (out of 100)</label>
-    <input type="number" id="french" min="0" max="100" />
+    <input type="number" id="french">
 
     <label>Maths (out of 100)</label>
-    <input type="number" id="maths" min="0" max="100" />
+    <input type="number" id="maths">
 
     <label>Science (out of 100)</label>
-    <input type="number" id="science" min="0" max="100" />
+    <input type="number" id="science">
 
     <label>Social Science (out of 100)</label>
-    <input type="number" id="social" min="0" max="100" />
+    <input type="number" id="sst">
 
     <label>Information Technology (out of 100)</label>
-    <input type="number" id="it" min="0" max="100" />
+    <input type="number" id="it">
 
-    <button onclick="calculatePercentage()">Calculate</button>
+    <div class="options">
+        <label>
+            <input type="radio" name="mode" value="600" checked>
+            Calculate out of 600 (no replacement)
+        </label>
+        <label>
+            <input type="radio" name="mode" value="500">
+            Calculate out of 500 (replace IT / best 4 after English)
+        </label>
+    </div>
+
+    <button onclick="calculate()">Calculate</button>
 
     <div class="result" id="result"></div>
-    <div class="grade" id="grade"></div>
-  </div>
+</div>
 
-  <script>
-    function getGrade(percent) {
-      if (percent >= 91) return "A1";
-      if (percent >= 81) return "A2";
-      if (percent >= 71) return "B1";
-      if (percent >= 61) return "B2";
-      if (percent >= 51) return "C1";
-      if (percent >= 41) return "C2";
-      if (percent >= 33) return "D";
-      return "E (Fail)";
+<script>
+function calculate() {
+    let english = Number(document.getElementById("english").value);
+    let french = Number(document.getElementById("french").value);
+    let maths = Number(document.getElementById("maths").value);
+    let science = Number(document.getElementById("science").value);
+    let sst = Number(document.getElementById("sst").value);
+    let it = Number(document.getElementById("it").value);
+
+    let mode = document.querySelector('input[name="mode"]:checked').value;
+
+    let percentage;
+
+    if (mode === "600") {
+        let total = english + french + maths + science + sst + it;
+        percentage = (total / 600) * 100;
+    } else {
+        let others = [french, maths, science, sst, it];
+        others.sort((a, b) => b - a);
+        let bestFour = others.slice(0, 4).reduce((a, b) => a + b, 0);
+        let total = english + bestFour;
+        percentage = (total / 500) * 100;
     }
 
-    function calculatePercentage() {
-      const english = Number(document.getElementById('english').value) || 0;
-      const french = Number(document.getElementById('french').value) || 0;
-      const maths = Number(document.getElementById('maths').value) || 0;
-      const science = Number(document.getElementById('science').value) || 0;
-      const social = Number(document.getElementById('social').value) || 0;
-      const it = Number(document.getElementById('it').value) || 0;
-
-      const totalMarks = english + french + maths + science + social + it;
-      const maxMarks = 100 * 6;
-      const percentage = (totalMarks / maxMarks) * 100;
-
-      const grade = getGrade(percentage);
-
-      document.getElementById('result').innerText =
-        `Total: ${totalMarks} / ${maxMarks} | Percentage: ${percentage.toFixed(2)}%`;
-
-      document.getElementById('grade').innerText = `Overall Grade: ${grade}`;
-    }
-  </script>
+    document.getElementById("result").innerText =
+        "Percentage: " + percentage.toFixed(2) + "%";
+}
+</script>
 </body>
 </html>
