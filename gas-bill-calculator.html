@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gas Bill Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #F3F4F6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      padding: 24px 16px;
+      color: #111827;
+    }
+
+    /* ── Card ── */
+    #gbc-card {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 430px;
+      border: 1px solid #E5E7EB;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    #gbc-header {
+      background: #B45309;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    #gbc-header-text h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      color: #fff;
+      font-size: 20px;
+      letter-spacing: -0.3px;
+    }
+
+    #gbc-header-text p {
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      margin-top: 3px;
+    }
+
+    /* ── Body ── */
+    #gbc-body { padding: 28px 28px 8px; }
+
+    /* ── Fields ── */
+    .gbc-field { margin-bottom: 22px; }
+
+    .gbc-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6B7280;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .gbc-input-wrap { position: relative; }
+
+    .gbc-input {
+      width: 100%;
+      padding: 13px 52px 13px 14px;
+      border: 1.5px solid #D1D5DB;
+      border-radius: 10px;
+      font-size: 17px;
+      font-family: 'Inter', sans-serif;
+      color: #111827;
+      background: #F9FAFB;
+      outline: none;
+      transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+      -moz-appearance: textfield;
+    }
+
+    .gbc-input::-webkit-outer-spin-button,
+    .gbc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .gbc-input:focus {
+      border-color: #B45309;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.12);
+    }
+
+    .gbc-input.gbc-error {
+      border-color: #DC2626;
+      background: #FEF2F2;
+    }
+
+    .gbc-input-unit {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      font-weight: 600;
+      color: #9CA3AF;
+      pointer-events: none;
+    }
+
+    .gbc-err {
+      font-size: 12px;
+      color: #DC2626;
+      margin-top: 6px;
+      display: none;
+    }
+
+    /* ── Divider ── */
+    .gbc-sub-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #D1D5DB;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin: -6px 0 22px;
+    }
+
+    .gbc-sub-divider::before, .gbc-sub-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #E5E7EB;
+    }
+
+    /* ── Button ── */
+    #gbc-btn {
+      display: block;
+      width: calc(100% - 56px);
+      margin: 0 28px 28px;
+      padding: 14px;
+      background: #B45309;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.15px;
+    }
+
+    #gbc-btn:hover  { background: #92400E; }
+    #gbc-btn:active { transform: scale(0.99); }
+
+    /* ── Result panel ── */
+    #gbc-result {
+      margin: 0 28px 28px;
+      border-radius: 14px;
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      overflow: hidden;
+      display: none;
+    }
+
+    #gbc-result.gbc-show {
+      display: block;
+      animation: gbc-in 0.28s cubic-bezier(.22,.68,0,1.2);
+    }
+
+    @keyframes gbc-in {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0)   scale(1); }
+    }
+
+    #gbc-result-rows { padding: 18px 20px; }
+
+    .gbc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+    }
+
+    .gbc-rl { font-size: 13.5px; color: #166534; }
+    .gbc-rv { font-size: 13.5px; color: #14532D; font-weight: 600; }
+
+    .gbc-result-hr { height: 1px; background: #86EFAC; margin: 12px 0; }
+
+    .gbc-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .gbc-total-lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: #15803D;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    #gbc-amount {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #14532D;
+      letter-spacing: -1.5px;
+    }
+
+    #gbc-amount .sym { font-size: 24px; letter-spacing: 0; }
+
+    #gbc-reset-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      border: none;
+      border-top: 1px solid #BBF7D0;
+      color: #15803D;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #gbc-reset-btn:hover { background: rgba(134,239,172,0.2); }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      #gbc-card { border-radius: 16px; }
+      #gbc-header { padding: 20px 20px; }
+      #gbc-body { padding: 22px 20px 8px; }
+      #gbc-btn { width: calc(100% - 40px); margin: 0 20px 22px; }
+      #gbc-result { margin: 0 20px 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="gbc-card">
+
+  <!-- Header -->
+  <div id="gbc-header">
+    <svg width="38" height="38" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+      <path d="M19 5C19 5 9 14.5 9 22C9 27.5228 13.4772 33 19 33C24.5228 33 29 27.5228 29 22C29 14.5 19 5 19 5Z" fill="rgba(255,255,255,0.22)"/>
+      <path d="M19 12C19 12 14 18 14 22.5C14 25.538 16.2386 28 19 28C21.7614 28 24 25.538 24 22.5C24 18 19 12 19 12Z" fill="rgba(255,255,255,0.50)"/>
+      <circle cx="19" cy="23.5" r="3.5" fill="rgba(255,255,255,0.9)"/>
+    </svg>
+    <div id="gbc-header-text">
+      <h2>Gas Bill Calculator</h2>
+      <p>Enter meter readings to get your bill</p>
+    </div>
+  </div>
+
+  <!-- Inputs -->
+  <div id="gbc-body">
+
+    <div class="gbc-field">
+      <div class="gbc-label">This Month's Reading</div>
+      <div class="gbc-input-wrap">
+        <input id="gbc-cur" class="gbc-input" type="number" inputmode="decimal"
+               placeholder="e.g.  1250" autocomplete="off" />
+        <span class="gbc-input-unit">m³</span>
+      </div>
+      <div class="gbc-err" id="gbc-err-c"></div>
+    </div>
+
+    <div class="gbc-sub-divider">minus previous reading</div>
+
+    <div class="gbc-field">
+      <div class="gbc-label">Previous Month's Reading</div>
+      <div class="gbc-input-wrap">
+        <input id="gbc-prv" class="gbc-input" type="number" inputmode="decimal"
+               placeholder="e.g.  1220" autocomplete="off" />
+        <span class="gbc-input-unit">m³</span>
+      </div>
+      <div class="gbc-err" id="gbc-err-p"></div>
+    </div>
+
+  </div>
+
+  <button id="gbc-btn" onclick="gbcCalc()">Calculate My Bill →</button>
+
+  <!-- Result -->
+  <div id="gbc-result">
+    <div id="gbc-result-rows">
+      <div class="gbc-row">
+        <span class="gbc-rl">Units consumed</span>
+        <span class="gbc-rv" id="gr-units">—</span>
+      </div>
+      <div class="gbc-row">
+        <span class="gbc-rl">× Rate (60.29)</span>
+        <span class="gbc-rv" id="gr-s1">—</span>
+      </div>
+      <div class="gbc-row">
+        <span class="gbc-rl">× Factor (2.3)</span>
+        <span class="gbc-rv" id="gr-s2">—</span>
+      </div>
+      <div class="gbc-result-hr"></div>
+      <div class="gbc-total">
+        <span class="gbc-total-lbl">Total Bill</span>
+        <span id="gbc-amount"><span class="sym">₹</span><span id="gr-final">0.00</span></span>
+      </div>
+    </div>
+    <button id="gbc-reset-btn" onclick="gbcReset()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M2 7a5 5 0 1 0 .9-2.9" stroke="#15803D" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M2 3v4h4"              stroke="#15803D" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Reset &amp; calculate again
+    </button>
+  </div>
+
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  function gbcCalc() {
+    const cIn = $('gbc-cur'), pIn = $('gbc-prv');
+    const cErr = $('gbc-err-c'), pErr = $('gbc-err-p');
+
+    [cIn, pIn].forEach(el => el.classList.remove('gbc-error'));
+    [cErr, pErr].forEach(el => { el.style.display = 'none'; el.textContent = ''; });
+
+    const c = parseFloat(cIn.value);
+    const p = parseFloat(pIn.value);
+    let ok = true;
+
+    if (cIn.value.trim() === '' || isNaN(c)) {
+      cIn.classList.add('gbc-error');
+      cErr.textContent = 'Enter this month\'s meter reading.';
+      cErr.style.display = 'block';
+      ok = false;
+    }
+
+    if (pIn.value.trim() === '' || isNaN(p)) {
+      pIn.classList.add('gbc-error');
+      pErr.textContent = 'Enter last month\'s meter reading.';
+      pErr.style.display = 'block';
+      ok = false;
+    }
+
+    if (ok && c < p) {
+      cIn.classList.add('gbc-error');
+      cErr.textContent = 'Current reading can\'t be less than previous.';
+      cErr.style.display = 'block';
+      ok = false;
+    }
+
+    if (!ok) return;
+
+    const units = c - p;
+    const s1    = units * 60.29;
+    const s2    = s1    * 2.3;
+
+    $('gr-units').textContent = units.toFixed(2) + ' m³';
+    $('gr-s1').textContent    = '₹ ' + s1.toFixed(2);
+    $('gr-s2').textContent    = '₹ ' + s2.toFixed(2);
+    $('gr-final').textContent = s2.toFixed(2);
+
+    const panel = $('gbc-result');
+    panel.classList.remove('gbc-show');
+    void panel.offsetWidth;
+    panel.classList.add('gbc-show');
+  }
+
+  function gbcReset() {
+    ['gbc-cur','gbc-prv'].forEach(id => { $(id).value = ''; $(id).classList.remove('gbc-error'); });
+    ['gbc-err-c','gbc-err-p'].forEach(id => { $(id).style.display = 'none'; $(id).textContent = ''; });
+    $('gbc-result').classList.remove('gbc-show');
+    $('gbc-cur').focus();
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') gbcCalc(); });
+</script>
+
+</body>
+</html>
